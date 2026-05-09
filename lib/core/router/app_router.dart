@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
@@ -52,15 +54,15 @@ GoRouter appRouter(Ref ref) {
       // Auth
       GoRoute(
         path: AppRoutes.welcome,
-        builder: (_, __) => const WelcomeScreen(),
+        pageBuilder: (_, state) => const NoTransitionPage(child: WelcomeScreen()),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (_, __) => const PlaceholderScreen(label: 'Login'),
+        pageBuilder: (_, state) => const NoTransitionPage(child: LoginScreen()),
       ),
       GoRoute(
         path: AppRoutes.register,
-        builder: (_, __) => const PlaceholderScreen(label: 'Register'),
+        pageBuilder: (_, state) => const NoTransitionPage(child: RegisterScreen()),
       ),
 
       // Onboarding casa

@@ -1,0 +1,159 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/router/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../data/auth_controller.dart';
+import 'auth_text_field.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController    = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey            = GlobalKey<FormState>();
+  bool _obscurePassword     = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    await ref.read(authControllerProvider.notifier).login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = authState.isLoading;
+
+    // Escucha errores
+    ref.listen(authControllerProvider, (_, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_parseError(next.error))),
+        );
+      }
+    });
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 32),
+                Text('Inicia sesión', style: AppTextStyles.displayMedium),
+                const SizedBox(height: 8),
+                Text(
+                  'Convierte el reparto de tareas en tu venganza personal',
+                  style: AppTextStyles.secondary,
+                ),
+                const SizedBox(height: 40),
+                AuthTextField(
+                  controller: _emailController,
+                  label: 'Correo electrónico',
+                  hint: 'tu@ejemplo.com',
+                  prefixIcon: Icons.mail_outline_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Introduce tu correo';
+                    if (!v.contains('@')) return 'Correo no válido';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                AuthTextField(
+                  controller: _passwordController,
+                  label: 'Contraseña',
+                  hint: '••••••••',
+                  prefixIcon: Icons.lock_outline_rounded,
+                  obscureText: _obscurePassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.textHint,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Introduce tu contraseña';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 32),
+
+                ElevatedButton(
+                  onPressed: isLoading ? null : _submit,
+                  child: isLoading
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : const Text('Iniciar sesión'),
+                ),
+                const SizedBox(height: 24),
+
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '¿Todavía no tienes cuenta? ',
+                        style: AppTextStyles.secondary,
+                      ),
+                      GestureDetector(
+                        onTap: () => context.go(AppRoutes.register),
+                        child: Text(
+                          'Regístrate',
+                          style: AppTextStyles.link,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _parseError(Object? error) {
+    if (error == null) return 'Error desconocido';
+    final msg = error.toString().toLowerCase();
+    if (msg.contains('401') || msg.contains('unauthorized')) {
+      return 'Correo o contraseña incorrectos';
+    }
+    if (msg.contains('connection') || msg.contains('socket')) {
+      return 'Sin conexión. Comprueba tu red';
+    }
+    return 'Algo ha ido mal. Inténtalo de nuevo';
+  }
+}

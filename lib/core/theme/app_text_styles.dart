@@ -28,7 +28,7 @@ abstract class AppTextStyles {
   static final disabled = bodyMedium.copyWith(color: AppColors.textDisabled);
 
   static final link = bodyMedium.copyWith(
-    color: AppColors.primary,
+    color: AppColors.accent,
     fontWeight: FontWeight.w600,
     decoration: TextDecoration.underline,
   );
