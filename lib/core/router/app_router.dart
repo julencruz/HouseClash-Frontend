@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/presentation/welcome_screen.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
 import '../theme/app_colors.dart';
@@ -17,7 +18,7 @@ GoRouter appRouter(Ref ref) {
   final houseAsync = ref.watch(houseStorageProvider);
 
   return GoRouter(
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.welcome,
     debugLogDiagnostics: true,
     refreshListenable: _RouterNotifier(ref),
     redirect: (context, state) {
@@ -27,7 +28,8 @@ GoRouter appRouter(Ref ref) {
       final hasHouse = houseAsync.valueOrNull != null;
       final location = state.matchedLocation;
 
-      final isPublic = location == AppRoutes.login ||
+      final isPublic = location == AppRoutes.welcome ||
+          location == AppRoutes.login || 
           location == AppRoutes.register;
 
       final isOnboarding = location == AppRoutes.joinHouse ||
@@ -48,6 +50,10 @@ GoRouter appRouter(Ref ref) {
     },
     routes: [
       // Auth
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (_, __) => const WelcomeScreen(),
+      ),
       GoRoute(
         path: AppRoutes.login,
         builder: (_, __) => const PlaceholderScreen(label: 'Login'),

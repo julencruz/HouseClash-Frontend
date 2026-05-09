@@ -4,6 +4,7 @@ abstract class AppRoutes {
   static const register  = '/register';
 
   // Onboarding
+  static const welcome = '/';
   static const joinHouse   = '/join-house';
   static const createHouse = '/create-house';
 
