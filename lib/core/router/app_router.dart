@@ -4,46 +4,49 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../auth/house_storage.dart';
+import '../auth/token_storage.dart';
 import '../theme/app_colors.dart';
+import 'app_routes.dart';
 
 part 'app_router.g.dart';
 
-abstract class AppRoutes {
-  // Auth
-  static const splash    = '/';
-  static const login     = '/login';
-  static const register  = '/register';
-
-  // Onboarding
-  static const joinHouse   = '/join-house';
-  static const createHouse = '/create-house';
-
-  // Menu principal
-  static const tasks    = '/tasks';
-  static const cards    = '/cards';
-  static const ranking  = '/ranking';
-  static const activity = '/activity';
-  static const profile  = '/profile';
-
-  // Rutes amb paràmetres
-  static const taskDetail = '/tasks/:taskId';
-  static const cardDetail = '/cards/:cardId';
-}
-
-// ── Provider del router ──────────────────────────────────
 @riverpod
 GoRouter appRouter(Ref ref) {
-  return GoRouter(
-    initialLocation: AppRoutes.tasks,
-    debugLogDiagnostics: true,
-    redirect: _guard,
-    routes: [
-      // Splash
-      GoRoute(
-        path: AppRoutes.splash,
-        builder: (_, __) => const SplashScreen(),
-      ),
+  final tokenAsync = ref.watch(tokenStorageProvider);
+  final houseAsync = ref.watch(houseStorageProvider);
 
+  return GoRouter(
+    initialLocation: AppRoutes.login,
+    debugLogDiagnostics: true,
+    refreshListenable: _RouterNotifier(ref),
+    redirect: (context, state) {
+      if (tokenAsync.isLoading || houseAsync.isLoading) return null;
+
+      final hasToken = tokenAsync.valueOrNull != null;
+      final hasHouse = houseAsync.valueOrNull != null;
+      final location = state.matchedLocation;
+
+      final isPublic = location == AppRoutes.login ||
+          location == AppRoutes.register;
+
+      final isOnboarding = location == AppRoutes.joinHouse ||
+          location == AppRoutes.createHouse;
+
+      if (!hasToken) {
+        return isPublic ? null : AppRoutes.login;
+      }
+
+      if (hasToken && !hasHouse) {
+        return isOnboarding ? null : AppRoutes.joinHouse;
+      }
+
+      if (hasToken && hasHouse && (isPublic || isOnboarding)) {
+        return AppRoutes.tasks;
+      }
+      return null;
+    },
+    routes: [
       // Auth
       GoRoute(
         path: AppRoutes.login,
@@ -108,27 +111,6 @@ GoRouter appRouter(Ref ref) {
       ),
     ],
   );
-}
-
-// Guard
-String? _guard(BuildContext context, GoRouterState state) {
-  // De moment sense lògica real — la posarem quan tinguem auth
-  // Aquí comprovarem: té token? té casa? i redirigim en conseqüència
-  return null;
-}
-
-// Splash temporal
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('HouseClash', style: Theme.of(context).textTheme.headlineLarge),
-      ),
-    );
-  }
 }
 
 // Main menu amb bottom nav
@@ -225,5 +207,12 @@ class PlaceholderScreen extends StatelessWidget {
         child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
       ),
     );
+  }
+}
+
+class _RouterNotifier extends ChangeNotifier {
+  _RouterNotifier(Ref ref) {
+    ref.listen(tokenStorageProvider, (_, __) => notifyListeners());
+    ref.listen(houseStorageProvider, (_, __) => notifyListeners());
   }
 }
