@@ -16,7 +16,8 @@ Mobile frontend for **HouseClash**, a gamified application for household task ma
 ## Setup
 1. Copy `.env.example` to `.env` and fill in the variables.
 2. Run `flutter pub get` to install dependencies.
-3. Run `flutter run` to launch the application.
+3. Run `dart run build_runner build --delete-conflicting-outputs` to generate needed files
+5. Run `flutter run` to launch the application.
 
 ## Project Structure
 The project is located in the `/lib` directory and follows a **feature-driven architecture** with the following layers:
