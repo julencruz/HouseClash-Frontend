@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="houseclash_flutter"
+        android:label="HouseClash"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
