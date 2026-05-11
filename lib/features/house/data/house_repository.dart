@@ -37,14 +37,16 @@ class HouseRepository {
     await _houseStorage.saveHouse(user.houseId!, createdBy);
   }
 
-  Future<void> createHouse(String name, String? description) async {
+  Future<String> createHouse(String name, String? description) async {
     final data = <String, dynamic>{'name': name};
     if (description != null) data['description'] = description;
 
     final response = await _dio.post('/api/houses', data: data);
     final houseId = response.data['id'] as int;
     final createdBy = response.data['createdBy'] as int;
+    final inviteCode = response.data['inviteCode'] as String;
 
     await _houseStorage.saveHouse(houseId, createdBy);
+    return inviteCode;
   }
 }

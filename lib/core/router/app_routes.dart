@@ -8,6 +8,7 @@ abstract class AppRoutes {
   static const joinOrCreateHouse = '/join-or-create-house';
   static const joinHouse   = '/join-house';
   static const createHouse = '/create-house';
+  static const houseCreatedSuccess = '/house-created-success';
 
   // Menu principal
   static const tasks    = '/tasks';

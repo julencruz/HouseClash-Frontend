@@ -16,10 +16,12 @@ class HouseController extends _$HouseController {
     );
   }
 
-  Future<void> createHouse(String name, String? description) async {
+  Future<String?> createHouse(String name, String? description) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(houseRepositoryProvider).createHouse(name, description),
-    );
+    String? code;
+    state = await AsyncValue.guard(() async {
+      code = await ref.read(houseRepositoryProvider).createHouse(name, description);
+    });
+    return code;
   }
 }

@@ -27,12 +27,15 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(houseControllerProvider.notifier).createHouse(
+    final code = await ref.read(houseControllerProvider.notifier).createHouse(
       _nameController.text.trim(),
       _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
     );
+    if (code != null && mounted) {
+      context.go('${AppRoutes.houseCreatedSuccess}?code=$code');
+    }
   }
 
   String _parseError(Object? error) {

@@ -26,6 +26,10 @@ class HouseStorage extends _$HouseStorage {
     state = AsyncData(HouseSession(houseId: houseId, createdBy: createdBy));
   }
 
+  void setLoading() {
+    state = const AsyncLoading();
+  }
+
   Future<void> clearHouse() async {
     await _storage.delete(key: _keyHouseId);
     await _storage.delete(key: _keyCreatedBy);

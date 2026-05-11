@@ -36,6 +36,10 @@ class AuthRepository {
     final token = response.data['token'] as String;
     final user  = UserSession.fromJson(response.data['user']);
 
+    if (user.houseId != null) {
+      _houseStorage.setLoading();
+    }
+
     await _tokenStorage.saveToken(token);
     await _persistHouseIfNeeded(user);
 

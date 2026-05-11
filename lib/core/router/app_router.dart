@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/onboarding/join_or_create_house_screen.dart';
 import '../../features/auth/onboarding/join_house_screen.dart';
 import '../../features/auth/onboarding/create_house_screen.dart';
+import '../../features/auth/onboarding/house_created_success_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
@@ -40,15 +41,14 @@ GoRouter appRouter(Ref ref) {
 
       final isOnboarding =
           location == AppRoutes.joinOrCreateHouse ||
-          location == AppRoutes.joinHouse         ||
-          location == AppRoutes.createHouse;
+          location == AppRoutes.joinHouse;
 
       if (!hasToken) {
         return isPublic ? null : AppRoutes.login;
       }
 
       if (hasToken && !hasHouse) {
-        return isOnboarding ? null : AppRoutes.joinOrCreateHouse;
+        return (isOnboarding || location == AppRoutes.createHouse) ? null : AppRoutes.joinOrCreateHouse;
       }
 
       if (hasToken && hasHouse && (isPublic || isOnboarding)) {
@@ -83,6 +83,13 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: AppRoutes.createHouse,
         pageBuilder: (_, __) => const NoTransitionPage(child: CreateHouseScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.houseCreatedSuccess,
+        pageBuilder: (_, state) {
+          final inviteCode = state.uri.queryParameters['code'] ?? 'ERROR';
+          return NoTransitionPage(child: HouseCreatedSuccessScreen(inviteCode: inviteCode));
+        },
       ),
 
       // Shell amb bottom nav
