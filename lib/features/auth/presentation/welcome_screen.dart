@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/router/app_router.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -153,7 +152,7 @@ class _IconPatternPainter extends CustomPainter {
     final random = Random(42);
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
-    final iconSize = 28.0;
+    const iconSize = 28.0;
     final cols = (size.width / 72).ceil() + 1;
     final rows = (size.height / 72).ceil() + 1;
 

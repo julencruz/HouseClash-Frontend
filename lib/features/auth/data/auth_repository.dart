@@ -30,7 +30,7 @@ class AuthRepository {
 
   Future<UserSession> login(String email, String password) async {
     final response = await _dio.post(
-      '/users/login',
+      '/api/users/login',
       data: {'email': email, 'passwordRaw': password},
     );
     final token = response.data['token'] as String;
@@ -44,7 +44,7 @@ class AuthRepository {
 
   Future<UserSession> register(String username, String email, String password) async {
     await _dio.post(
-      '/users/register',
+      '/api/users/register',
       data: {
         'username':    username,
         'email':       email,
@@ -62,7 +62,7 @@ class AuthRepository {
   Future<void> _persistHouseIfNeeded(UserSession user) async {
     if (user.houseId == null) return;
 
-    final response = await _dio.get('/houses/me');
+    final response = await _dio.get('/api/houses/me');
     final createdBy = response.data['house']['createdBy'] as int;
 
     await _houseStorage.saveHouse(user.houseId!, createdBy);

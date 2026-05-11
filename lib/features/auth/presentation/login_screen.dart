@@ -40,7 +40,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
-    // Escucha errores
     ref.listen(authControllerProvider, (_, next) {
       if (next.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +62,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Text('Inicia sesión', style: AppTextStyles.displayMedium),
                 const SizedBox(height: 8),
                 Text(
-                  'Convierte el reparto de tareas en tu venganza personal',
+                  'Convierte el reparto de tareas en tu venganza personal.',
                   style: AppTextStyles.secondary,
                 ),
                 const SizedBox(height: 40),
@@ -147,13 +146,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String _parseError(Object? error) {
     if (error == null) return 'Error desconocido';
-    final msg = error.toString().toLowerCase();
-    if (msg.contains('401') || msg.contains('unauthorized')) {
-      return 'Correo o contraseña incorrectos';
+    if (error.runtimeType.toString().contains('DioException')) {
+      final dioError = error as dynamic;
+      final response = dioError.response;
+      if (response != null && response.statusCode == 401) {
+        return 'Correo o contraseña incorrectos';
+      }
+      if (response != null && response.statusCode == 400) {
+        return 'Datos introducidos incorrectos (Error 400)';
+      }
+      return 'Error del servidor: ${response?.statusCode}';
     }
-    if (msg.contains('connection') || msg.contains('socket')) {
-      return 'Sin conexión. Comprueba tu red';
-    }
+    
     return 'Algo ha ido mal. Inténtalo de nuevo';
   }
 }

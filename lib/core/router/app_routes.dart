@@ -5,6 +5,7 @@ abstract class AppRoutes {
 
   // Onboarding
   static const welcome = '/';
+  static const joinOrCreateHouse = '/join-or-create-house';
   static const joinHouse   = '/join-house';
   static const createHouse = '/create-house';
 

@@ -4,9 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/onboarding/join_or_create_house_screen.dart';
+import '../../features/auth/onboarding/join_house_screen.dart';
+import '../../features/auth/onboarding/create_house_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/auth/data/auth_controller.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
 import '../theme/app_colors.dart';
@@ -14,16 +18,16 @@ import 'app_routes.dart';
 
 part 'app_router.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
-  final tokenAsync = ref.watch(tokenStorageProvider);
-  final houseAsync = ref.watch(houseStorageProvider);
-
   return GoRouter(
     initialLocation: AppRoutes.welcome,
     debugLogDiagnostics: true,
     refreshListenable: _RouterNotifier(ref),
     redirect: (context, state) {
+      final tokenAsync = ref.read(tokenStorageProvider);
+      final houseAsync = ref.read(houseStorageProvider);
+
       if (tokenAsync.isLoading || houseAsync.isLoading) return null;
 
       final hasToken = tokenAsync.valueOrNull != null;
@@ -34,7 +38,9 @@ GoRouter appRouter(Ref ref) {
           location == AppRoutes.login || 
           location == AppRoutes.register;
 
-      final isOnboarding = location == AppRoutes.joinHouse ||
+      final isOnboarding =
+          location == AppRoutes.joinOrCreateHouse ||
+          location == AppRoutes.joinHouse         ||
           location == AppRoutes.createHouse;
 
       if (!hasToken) {
@@ -42,7 +48,7 @@ GoRouter appRouter(Ref ref) {
       }
 
       if (hasToken && !hasHouse) {
-        return isOnboarding ? null : AppRoutes.joinHouse;
+        return isOnboarding ? null : AppRoutes.joinOrCreateHouse;
       }
 
       if (hasToken && hasHouse && (isPublic || isOnboarding)) {
@@ -67,12 +73,16 @@ GoRouter appRouter(Ref ref) {
 
       // Onboarding casa
       GoRoute(
+        path: AppRoutes.joinOrCreateHouse,
+        pageBuilder: (_, state) => const NoTransitionPage(child: JoinOrCreateHouseScreen()),
+      ),
+      GoRoute(
         path: AppRoutes.joinHouse,
-        builder: (_, __) => const PlaceholderScreen(label: 'Unir-se a una casa'),
+        pageBuilder: (_, __) => const NoTransitionPage(child: JoinHouseScreen()),
       ),
       GoRoute(
         path: AppRoutes.createHouse,
-        builder: (_, __) => const PlaceholderScreen(label: 'Crear casa'),
+        pageBuilder: (_, __) => const NoTransitionPage(child: CreateHouseScreen()),
       ),
 
       // Shell amb bottom nav
@@ -203,14 +213,30 @@ class MainShell extends StatelessWidget {
 }
 
 // ── Placeholder reutilitzable ────────────────────────────
-class PlaceholderScreen extends StatelessWidget {
+class PlaceholderScreen extends ConsumerWidget {
   const PlaceholderScreen({super.key, required this.label});
   final String label;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text(label)),
+      appBar: AppBar(
+        title: Text(label),
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              )
+            : null,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              ref.read(authControllerProvider.notifier).logout();
+            },
+          )
+        ],
+      ),
       body: Center(
         child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
       ),

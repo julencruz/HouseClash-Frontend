@@ -159,13 +159,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   String _parseError(Object? error) {
     if (error == null) return 'Error desconocido';
-    final msg = error.toString().toLowerCase();
-    if (msg.contains('409') || msg.contains('conflict')) {
-      return 'Este correo ya está registrado';
+    if (error.runtimeType.toString().contains('DioException')) {
+      final dioError = error as dynamic;
+      final response = dioError.response;
+      if (response != null && response.statusCode == 409) {
+        return 'Este correo ya está registrado';
+      }
+      if (response != null && response.statusCode == 400) {
+        return 'Datos introducidos incorrectos (Error 400)';
+      }
+      return 'Error del servidor: ${response?.statusCode}';
     }
-    if (msg.contains('connection') || msg.contains('socket')) {
-      return 'Sin conexión. Comprueba tu red';
-    }
+    
     return 'Algo ha ido mal. Inténtalo de nuevo';
   }
 }
