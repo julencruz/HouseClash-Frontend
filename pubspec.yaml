@@ -57,6 +57,7 @@ dependencies:
   shimmer: ^3.0.0                  # Loading skeletons
   gap: ^3.0.1                      # Espaciado limpio
   share_plus: ^12.0.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
