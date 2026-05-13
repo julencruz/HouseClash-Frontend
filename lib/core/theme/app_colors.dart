@@ -21,9 +21,9 @@ abstract class AppColors {
   static const textDisabled  = Color(0xFFCEC5C2);
 
   // Semàntica
-  static const success = Color(0xFF27C54F);
-  static const error   = Color(0xFFCF3F48);
-  static const warning = Color(0xFFD8784B);
+  static const success = Color(0xFF009048);
+  static const error   = Color(0xFFBE6363);
+  static const warning = Color(0xFFBE7E63);
 
   // Bordes i ombres
   static const border  = Color(0xFFE3DBD7);

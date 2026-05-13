@@ -58,6 +58,11 @@ class AuthRepository {
     return login(email, password);
   }
 
+  Future<UserSession> fetchProfile() async {
+    final response = await _dio.get('/api/users/me');
+    return UserSession.fromJson(response.data);
+  }
+
   Future<void> logout() async {
     await _tokenStorage.clearToken();
     await _houseStorage.clearHouse();

@@ -12,6 +12,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/auth/data/auth_controller.dart';
+import '../../features/tasks/presentation/tasks_screen.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
 import '../theme/app_colors.dart';
@@ -98,7 +99,7 @@ GoRouter appRouter(Ref ref) {
         routes: [
           GoRoute(
             path: AppRoutes.tasks,
-            pageBuilder: (_, state) => const NoTransitionPage(child: PlaceholderScreen(label: 'Tasques')),
+            pageBuilder: (_, state) => const NoTransitionPage(child: TasksScreen()),
             routes: [
               GoRoute(
                 path: ':taskId',

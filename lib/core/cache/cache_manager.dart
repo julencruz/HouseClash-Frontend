@@ -36,6 +36,5 @@ class CacheManager {
   void clear() => _store.clear();
 }
 
-// ── Provider ─────────────────────────────────────────────
-@riverpod
+@Riverpod(keepAlive: true)
 CacheManager cacheManager(Ref ref) => CacheManager();
