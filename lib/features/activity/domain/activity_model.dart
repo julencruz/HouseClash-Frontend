@@ -43,6 +43,7 @@ class ActivityModel {
   final int? taskId;
   final String? taskTitle;
   final String? cardType;
+  final int? kudosValue;
   final DateTime createdAt;
   final bool isPendingReview;
 
@@ -57,6 +58,7 @@ class ActivityModel {
     this.taskId,
     this.taskTitle,
     this.cardType,
+    this.kudosValue,
     required this.createdAt,
     required this.isPendingReview,
   });
@@ -72,6 +74,7 @@ class ActivityModel {
     taskId: json['taskId'] as int?,
     taskTitle: json['taskTitle'] as String?,
     cardType: json['cardType'] as String?,
+    kudosValue: json['kudosValue'] as int?,
     createdAt: DateTime.parse(json['createdAt'] as String),
     isPendingReview: json['isPendingReview'] as bool? ?? false,
   );

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 abstract class AppColors {
   // Identitat
-  static const primary      = Color(0xFF00916E);
-  static const primaryLight = Color(0xFF33A78B);
-  static const primaryDark  = Color(0xFF006D53);
-  static const accent       = Color(0xFFA44A3F);
-  static const accentLight  = Color(0xFFC06E64);
+  static const primary          = Color(0xFF00916E);
+  static const primaryLight     = Color(0xFF33A78B);
+  static const primaryDark      = Color(0xFF006D53);
+  static const accent           = Color(0xFFA44A3F);
+  static const accentLight      = Color(0xFFC06E64);
+  static const accentBackground = Color(0xFFF7EEEC);
 
   // Fons
   static const background   = Color(0xFFF7F3F0);

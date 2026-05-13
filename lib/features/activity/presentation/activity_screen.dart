@@ -9,11 +9,50 @@ import '../../tasks/presentation/task_controller.dart';
 import '../domain/activity_model.dart';
 import 'activity_controller.dart';
 
-class ActivityScreen extends ConsumerWidget {
+class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ActivityScreen> createState() => _ActivityScreenState();
+}
+
+class _ActivityScreenState extends ConsumerState<ActivityScreen> {
+  final ScrollController _scroll = ScrollController();
+  bool _showFab = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scroll.removeListener(_onScroll);
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    final shouldShow = _scroll.offset > 200;
+    if (_showFab != shouldShow) setState(() => _showFab = shouldShow);
+
+    if (_scroll.offset >= _scroll.position.maxScrollExtent - 300) {
+      ref.read(activityControllerProvider.notifier).loadMore();
+    }
+  }
+
+  void _goToTop() {
+    _scroll.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final activityAsync = ref.watch(activityControllerProvider);
     final userSession = ref.watch(authControllerProvider).valueOrNull;
 
@@ -22,8 +61,18 @@ class ActivityScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text('Actividad', style: AppTextStyles.h1),
       ),
+      floatingActionButton: _showFab
+          ? FloatingActionButton.small(
+              backgroundColor: AppColors.accentBackground,
+              foregroundColor: AppColors.accent,
+              elevation: 4,
+              onPressed: _goToTop,
+              child: const Icon(Icons.keyboard_arrow_up_rounded, size: 26),
+            )
+          : null,
       body: activityAsync.when(
-        data: (entries) {
+        data: (activityState) {
+          final entries = activityState.entries;
           if (entries.isEmpty) {
             return Center(
               child: Text(
@@ -33,17 +82,29 @@ class ActivityScreen extends ConsumerWidget {
             );
           }
 
-          final reversed = entries.reversed.toList();
-          final grouped = _groupByDay(reversed);
+          final grouped = _groupByDay(entries);
           final days = grouped.keys.toList();
 
           return RefreshIndicator(
             color: AppColors.primary,
             onRefresh: () => ref.read(activityControllerProvider.notifier).refresh(),
             child: ListView.builder(
+              controller: _scroll,
               padding: const EdgeInsets.only(bottom: 24),
-              itemCount: days.length,
+              itemCount: days.length + (activityState.isLoadingMore ? 1 : 0),
               itemBuilder: (context, i) {
+                if (activityState.isLoadingMore && i == days.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                }
                 final day = days[i];
                 final dayEntries = grouped[day]!;
                 return Column(
@@ -51,9 +112,10 @@ class ActivityScreen extends ConsumerWidget {
                   children: [
                     _DayHeader(day: day),
                     ...dayEntries.map((e) => _ActivityTile(
-                      entry: e,
-                      currentUserId: userSession?.id,
-                    )),
+                          entry: e,
+                          currentUserId: userSession?.id,
+                          kudosValue: e.kudosValue,
+                        )),
                   ],
                 );
               },
@@ -128,9 +190,10 @@ class _DayHeader extends StatelessWidget {
 }
 
 class _ActivityTile extends ConsumerWidget {
-  const _ActivityTile({required this.entry, required this.currentUserId});
+  const _ActivityTile({required this.entry, required this.currentUserId, this.kudosValue});
   final ActivityModel entry;
   final int? currentUserId;
+  final int? kudosValue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -213,7 +276,7 @@ class _ActivityTile extends ConsumerWidget {
                                     const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 14),
                                     const SizedBox(width: 2),
                                     Text(
-                                      _kudosLabel(type),
+                                      kudosValue != null ? '$kudosValue' : '-',
                                       style: AppTextStyles.labelSmall.copyWith(color: AppColors.accentLight),
                                     ),
                                   ],
@@ -311,12 +374,6 @@ class _ActivityTile extends ConsumerWidget {
       type == ActivityLogType.taskApproved ||
       type == ActivityLogType.taskAutoApproved;
 
-  String _kudosLabel(ActivityLogType type) => switch (type) {
-    ActivityLogType.taskCompleted    => '+kudos',
-    ActivityLogType.taskApproved     => '+kudos',
-    ActivityLogType.taskAutoApproved => '+kudos',
-    _ => '',
-  };
 
   String _initials(String username) {
     final parts = username.trim().split(RegExp(r'\s+'));

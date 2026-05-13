@@ -18,6 +18,18 @@ ActivityRepository activityRepository(Ref ref) => ActivityRepository(
   houseId: ref.watch(houseStorageProvider).valueOrNull?.houseId.toString() ?? '0',
 );
 
+class PagedActivityResult {
+  final List<ActivityModel> content;
+  final int page;
+  final bool isLast;
+
+  const PagedActivityResult({
+    required this.content,
+    required this.page,
+    required this.isLast,
+  });
+}
+
 class ActivityRepository {
   final Dio _dio;
   final CacheManager _cache;
@@ -43,6 +55,25 @@ class ActivityRepository {
         .toList();
     _cache.set(key, data, ttl: CacheTTLs.activity);
     return data;
+  }
+
+  Future<PagedActivityResult> getActivityLogPaged({
+    required int page,
+    int size = 100,
+  }) async {
+    final response = await _dio.get(
+      '/api/houses/$_houseId/activity-log/paged',
+      queryParameters: {'page': page, 'size': size},
+    );
+    final json = response.data as Map<String, dynamic>;
+    final content = (json['content'] as List)
+        .map((e) => ActivityModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+    return PagedActivityResult(
+      content: content,
+      page: json['page'] as int,
+      isLast: json['isLast'] as bool,
+    );
   }
 }
 
