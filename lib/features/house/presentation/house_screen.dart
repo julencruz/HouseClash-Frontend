@@ -425,10 +425,14 @@ class _RankingTile extends StatelessWidget {
 
   Color _rankColor(int rank) {
     switch (rank) {
-      case 1:  return AppColors.gold;
-      case 2:  return AppColors.silver;
-      case 3:  return AppColors.bronze;
-      default: return AppColors.worse;
+      case 1:
+        return AppColors.gold;
+      case 2:
+        return AppColors.silver;
+      case 3:
+        return AppColors.bronze;
+      default:
+        return AppColors.worse;
     }
   }
 
@@ -443,8 +447,11 @@ class _RankingTile extends StatelessWidget {
         : username.toUpperCase();
 
     final avatarColors = [
-      AppColors.primary, AppColors.accent, AppColors.gold,
-      AppColors.silver,  AppColors.bronze,
+      AppColors.primary,
+      AppColors.accent,
+      AppColors.gold,
+      AppColors.silver,
+      AppColors.bronze,
     ];
     final avatarColor = username.isEmpty
         ? AppColors.primary
@@ -454,17 +461,12 @@ class _RankingTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isMe ? AppColors.primary.withValues(alpha: 0.07) : AppColors.card,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isMe
-              ? AppColors.primary.withValues(alpha: 0.3)
-              : AppColors.border,
-        ),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          // Rank
           Container(
             width: 34,
             height: 34,
@@ -477,7 +479,6 @@ class _RankingTile extends StatelessWidget {
                 style: AppTextStyles.labelLarge.copyWith(color: rankColor)),
           ),
           const SizedBox(width: 10),
-          // Avatar
           Container(
             width: 38,
             height: 38,
@@ -490,16 +491,15 @@ class _RankingTile extends StatelessWidget {
                 style: AppTextStyles.labelMedium.copyWith(color: avatarColor)),
           ),
           const SizedBox(width: 12),
-          // Nombre
           Expanded(
             child: Text(
               username + (isMe ? ' (tú)' : ''),
               style: AppTextStyles.labelLarge,
             ),
           ),
-          // Valor
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '$value',

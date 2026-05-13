@@ -24,13 +24,10 @@ Future<void> showHouseEditSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (sheetContext) => ProviderScope(
-      parent: ProviderScope.containerOf(context),
-      child: _HouseEditSheet(
-        house: house,
-        members: members,
-        currentUserId: currentUserId,
-      ),
+    builder: (sheetContext) => _HouseEditSheet(
+      house: house,
+      members: members,
+      currentUserId: currentUserId,
     ),
   );
 }
@@ -207,13 +204,16 @@ class _HouseEditSheetState extends ConsumerState<_HouseEditSheet>
               child: const Text('Cancelar')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: Text('Aceptar',
-                style: const TextStyle(color: AppColors.primary)),
+            child: const Text('Aceptar',
+                style: TextStyle(color: AppColors.primary)),
           ),
         ],
       ),
     );
-    ctrl.dispose();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      ctrl.dispose();
+    });
+
     return result;
   }
 
