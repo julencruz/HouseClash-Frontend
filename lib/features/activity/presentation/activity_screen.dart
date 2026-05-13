@@ -244,101 +244,6 @@ class _ActivityTile extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (entry.taskTitle != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  entry.taskTitle!,
-                                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
-                                ),
-                              ),
-                              if (_showKudos(type))
-                                Row(
-                                  children: [
-                                    const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 14),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      kudosValue != null ? '$kudosValue' : '-',
-                                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.accentLight),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      if ((type == ActivityLogType.cardPlayed ||
-                              type == ActivityLogType.cardPurchased ||
-                              (type == ActivityLogType.unknown && entry.cardType != null)) &&
-                          entry.cardType != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: type.cardColor(entry.cardType).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: type.cardColor(entry.cardType).withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  type.cardIcon(entry.cardType),
-                                  size: 14,
-                                  color: type.cardColor(entry.cardType),
-                                ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        type.formatCard(entry.cardType),
-                                        style: AppTextStyles.labelSmall.copyWith(
-                                          color: type.cardColor(entry.cardType),
-                                        ),
-                                      ),
-                                      Text(
-                                        type.cardDescription(entry.cardType),
-                                        style: AppTextStyles.labelSmall.copyWith(
-                                          color: AppColors.textSecondary,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      if (entry.kudosValue != null) ...[
-                                        const SizedBox(height: 2),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.stars_rounded,
-                                                size: 12, color: AppColors.accentLight),
-                                            const SizedBox(width: 3),
-                                            Text(
-                                              _kudosLabel(entry.cardType, entry.kudosValue!),
-                                              style: AppTextStyles.labelSmall.copyWith(
-                                                color: AppColors.accentLight,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       Text.rich(
                         type.richMessage(
                           entry.actorUsername,
@@ -346,6 +251,7 @@ class _ActivityTile extends ConsumerWidget {
                           entry.taskTitle,
                           entry.cardType,
                           AppTextStyles.bodySmall,
+                          kudosValue: entry.kudosValue,
                         ),
                       ),
                       if (entry.isPendingReview) ...[
@@ -431,22 +337,6 @@ class _ActivityTile extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  bool _showKudos(ActivityLogType type) => type == ActivityLogType.taskCompleted ||
-      type == ActivityLogType.taskApproved ||
-      type == ActivityLogType.taskAutoApproved;
-
-  String _kudosLabel(String? cardType, int value) {
-    return switch (cardType) {
-      'STEAL_KUDOS'      => 'Robó $value Kudos',
-      'HOUSE_BONUS'      => '+$value Kudos a todos',
-      'MARKET_BOOST'     => '+$value Kudos a tareas',
-      'UNDERDOG_BOOST'   => '+$value Kudos a la tarea',
-      'CATEGORY_BOOST'   => '+$value Kudos a la categoría',
-      'VALUE_INFLATION'  => 'Tarea inflada a $value Kudos',
-      _                  => '$value Kudos',
-    };
   }
 
 

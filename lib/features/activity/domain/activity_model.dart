@@ -112,27 +112,54 @@ extension ActivityLogTypeInfo on ActivityLogType {
     String? target,
     String? task,
     String? card,
-    TextStyle base,
-  ) {
+    TextStyle base, {
+    int? kudosValue,
+  }) {
     final bold = base.copyWith(fontWeight: FontWeight.w700);
     TextSpan b(String text) => TextSpan(text: text, style: bold);
     TextSpan n(String text) => TextSpan(text: text, style: base);
 
+    List<InlineSpan> cardPlayedSpans() {
+      final cardName = formatCard(card);
+      final isSteal = card == 'STEAL_KUDOS';
+      final spans = <InlineSpan>[b(actor), n(' ha usado la carta '), b('"$cardName"')];
+      if (target != null && isSteal && kudosValue != null) {
+        spans.addAll([n(' y ha robado '), b('$kudosValue kudos'), n(' a '), b(target)]);
+      } else if (target != null && task != null) {
+        spans.addAll([n(' sobre '), b(target), n(' y la tarea es: '), b('"$task"')]);
+      } else if (target != null) {
+        spans.addAll([n(' a '), b(target)]);
+      } else if (task != null) {
+        spans.addAll([n(' en la tarea '), b('"$task"')]);
+      }
+      return spans;
+    }
+
     final spans = switch (this) {
-      ActivityLogType.taskCompleted    => [b(actor), n(' ha completado la tarea '), b(task ?? '')],
-      ActivityLogType.taskApproved     => [b(actor), n(' ha aprobado la tarea '), b(task ?? ''), n(' de '), b(target ?? '')],
-      ActivityLogType.taskDisputed     => [b(actor), n(' ha disputado la tarea '), b(task ?? ''), n(' de '), b(target ?? '')],
-      ActivityLogType.taskAutoApproved => [n('La tarea '), b(task ?? ''), n(' de '), b(actor), n(' fue auto-aprobada')],
+      ActivityLogType.taskCompleted    => [
+          b(actor), n(' ha completado la tarea '), b('"${task ?? ''}"'),
+          if (kudosValue != null) ...[n(' que vale '), b('$kudosValue kudos')],
+        ],
+      ActivityLogType.taskApproved     => [
+          b(actor), n(' ha aceptado la tarea '), b('"${task ?? ''}"'), n(' de '), b(target ?? ''),
+          if (kudosValue != null) ...[n(' y ha ganado '), b('$kudosValue kudos')],
+          n('\n'),b(actor), n(' ha recibido '), b('1 kudos'), n(' por ser el primero en validar'),
+        ],
+      ActivityLogType.taskDisputed     => [b(actor), n(' ha disputado la tarea '), b('"${task ?? ''}"'), n(' de '), b(target ?? '')],
+      ActivityLogType.taskAutoApproved => [
+          n('La tarea '), b('"${task ?? ''}"'), n(' de '), b(actor), n(' fue auto-aprobada'),
+          if (kudosValue != null) ...[n(' y ha ganado '), b('$kudosValue kudos')],
+        ],
       ActivityLogType.taskAssigned     => [b(actor), n(' se ha asignado la tarea '), b(task ?? '')],
       ActivityLogType.taskUnassigned   => [b(actor), n(' se ha desasignado de '), b(task ?? '')],
       ActivityLogType.taskCreated      => [b(actor), n(' ha creado la tarea '), b(task ?? '')],
       ActivityLogType.taskDeleted      => [b(actor), n(' ha eliminado la tarea '), b(task ?? '')],
-      ActivityLogType.cardPlayed       => [b(actor), n(' ha usado la carta '), b(formatCard(card)), if (target != null) ...[n(' a '), b(target)]],
+      ActivityLogType.cardPlayed       => cardPlayedSpans(),
       ActivityLogType.cardPurchased    => [b(actor), n(' ha comprado un sobre de cartas')],
       ActivityLogType.memberJoined     => [n('Bienvenido '), b(actor), n(' a la casa')],
       ActivityLogType.memberLeft       => [b(actor), n(' ha abandonado la casa')],
       ActivityLogType.unknown          => card != null
-          ? [b(actor), n(' ha usado la carta '), b(formatCard(card)), if (target != null) ...[n(' a '), b(target)]]
+          ? cardPlayedSpans()
           : [b(actor), n(' realizó una acción desconocida')],
     };
 
