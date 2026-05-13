@@ -60,6 +60,29 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Actividad', style: AppTextStyles.h1),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.accentLight.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 18),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${userSession?.kudosBalance ?? 0} Kudos',
+                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.accentLight),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: _showFab
           ? FloatingActionButton.small(
@@ -198,12 +221,6 @@ class _ActivityTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final type = entry.type;
-    final message = type.message(
-      entry.actorUsername,
-      entry.targetUsername,
-      entry.taskTitle,
-      entry.cardType,
-    );
     final time = DateFormat('HH:mm').format(entry.createdAt.toLocal());
     final initials = _initials(entry.actorUsername);
 
@@ -239,7 +256,7 @@ class _ActivityTile extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: entry.type.cardBackground,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.border),
                     boxShadow: [
@@ -284,7 +301,15 @@ class _ActivityTile extends ConsumerWidget {
                             ],
                           ),
                         ),
-                      Text(message, style: AppTextStyles.bodySmall),
+                      Text.rich(
+                        type.richMessage(
+                          entry.actorUsername,
+                          entry.targetUsername,
+                          entry.taskTitle,
+                          entry.cardType,
+                          AppTextStyles.bodySmall,
+                        ),
+                      ),
                       if (entry.isPendingReview) ...[
                         const SizedBox(height: 6),
                         Row(
