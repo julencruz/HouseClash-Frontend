@@ -14,6 +14,7 @@ import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/auth/data/auth_controller.dart';
 import '../../features/activity/presentation/activity_screen.dart';
 import '../../features/cards/presentation/cards_screen.dart';
+import '../../features/house/presentation/house_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
@@ -125,7 +126,7 @@ GoRouter appRouter(Ref ref) {
           ),
           GoRoute(
             path: AppRoutes.ranking,
-            pageBuilder: (_, state) => const NoTransitionPage(child: PlaceholderScreen(label: 'Rànquing')),
+            pageBuilder: (_, state) => const NoTransitionPage(child: HouseScreen()),
           ),
           GoRoute(
             path: AppRoutes.activity,
@@ -197,9 +198,9 @@ class MainShell extends StatelessWidget {
                 ),
 
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.emoji_events_outlined),
-                  activeIcon: Icon(Icons.emoji_events_rounded),
-                  label: 'Rànquing',
+                  icon: Icon(Icons.home_work_outlined),
+                  activeIcon: Icon(Icons.home_work_rounded),
+                  label: 'Casa',
                 ),
 
                 BottomNavigationBarItem(
