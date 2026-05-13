@@ -103,8 +103,8 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
             ),
           ],
         ),
-        loading: () => HouseClashAppBar(title: 'Casa', kudos: kudos),
-        error: (_, __) => HouseClashAppBar(title: 'Casa', kudos: kudos),
+        loading: () => HouseClashAppBar(title: '', kudos: kudos),
+        error: (_, __) => HouseClashAppBar(title: '', kudos: kudos),
       ),
       body: houseAsync.when(
         loading: () => const Center(

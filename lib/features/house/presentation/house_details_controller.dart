@@ -7,14 +7,16 @@ part 'house_details_controller.g.dart';
 @riverpod
 class HouseDetailsController extends _$HouseDetailsController {
   @override
-  Future<HouseDetailsModel> build() async {
+  FutureOr<HouseDetailsModel> build() {
+    final cached = ref.read(houseRepositoryProvider).getCachedHouseDetails();
+    if (cached != null) return cached;
     return ref.read(houseRepositoryProvider).getHouseDetails();
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh({bool forceRefresh = true}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(houseRepositoryProvider).getHouseDetails(),
+      () => ref.read(houseRepositoryProvider).getHouseDetails(forceRefresh: forceRefresh),
     );
   }
 

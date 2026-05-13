@@ -26,18 +26,28 @@ part 'app_router.g.dart';
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   return GoRouter(
-    initialLocation: AppRoutes.welcome,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     refreshListenable: _RouterNotifier(ref),
     redirect: (context, state) {
       final tokenAsync = ref.read(tokenStorageProvider);
       final houseAsync = ref.read(houseStorageProvider);
+      final location = state.matchedLocation;
 
-      if (tokenAsync.isLoading || houseAsync.isLoading) return null;
+      if (tokenAsync.isLoading || houseAsync.isLoading) {
+        return location == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      if (location == AppRoutes.splash) {
+        final hasToken = tokenAsync.valueOrNull != null;
+        final hasHouse = houseAsync.valueOrNull != null;
+        if (!hasToken) return AppRoutes.welcome;
+        if (!hasHouse) return AppRoutes.joinOrCreateHouse;
+        return AppRoutes.tasks;
+      }
 
       final hasToken = tokenAsync.valueOrNull != null;
       final hasHouse = houseAsync.valueOrNull != null;
-      final location = state.matchedLocation;
 
       final isPublic = location == AppRoutes.welcome ||
           location == AppRoutes.login || 
@@ -61,6 +71,12 @@ GoRouter appRouter(Ref ref) {
       return null;
     },
     routes: [
+      // Splash
+      GoRoute(
+        path: AppRoutes.splash,
+        pageBuilder: (_, state) => const NoTransitionPage(child: _SplashScreen()),
+      ),
+
       // Auth
       GoRoute(
         path: AppRoutes.welcome,
@@ -259,5 +275,19 @@ class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
     ref.listen(tokenStorageProvider, (_, __) => notifyListeners());
     ref.listen(houseStorageProvider, (_, __) => notifyListeners());
+  }
+}
+
+// ── Splash screen de carga ───────────────────────────────
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }

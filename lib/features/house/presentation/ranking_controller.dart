@@ -7,17 +7,17 @@ part 'ranking_controller.g.dart';
 @riverpod
 class RankingController extends _$RankingController {
   @override
-  Future<List<MemberStats>> build() async {
+  FutureOr<List<MemberStats>> build() {
+    final cached = ref.read(houseRepositoryProvider).getCachedRanking();
+    if (cached != null) return cached;
     return ref.read(houseRepositoryProvider).getRanking(RankingPeriod.ALL_TIME);
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh({bool forceRefresh = true}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(houseRepositoryProvider).getRanking(RankingPeriod.ALL_TIME),
+      () => ref.read(houseRepositoryProvider).getRanking(RankingPeriod.ALL_TIME, forceRefresh: forceRefresh),
     );
   }
 }
-
-
 

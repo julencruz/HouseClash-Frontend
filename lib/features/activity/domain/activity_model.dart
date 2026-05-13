@@ -15,26 +15,30 @@ enum ActivityLogType {
   cardPurchased,
   memberJoined,
   memberLeft,
+  memberKicked,
+  captainTransferred,
   unknown;
 
   static ActivityLogType fromString(String value) => switch (value) {
-    'TASK_COMPLETED'     => ActivityLogType.taskCompleted,
-    'TASK_APPROVED'      => ActivityLogType.taskApproved,
-    'TASK_DISPUTED'      => ActivityLogType.taskDisputed,
-    'TASK_AUTO_APPROVED' => ActivityLogType.taskAutoApproved,
-    'TASK_ASSIGNED'      => ActivityLogType.taskAssigned,
-    'TASK_UNASSIGNED'    => ActivityLogType.taskUnassigned,
-    'TASK_CREATED'       => ActivityLogType.taskCreated,
-    'TASK_DELETED'       => ActivityLogType.taskDeleted,
-    'CARD_PLAYED'        => ActivityLogType.cardPlayed,
-    'CARD_USED'          => ActivityLogType.cardPlayed,
-    'CARD_EFFECT'        => ActivityLogType.cardPlayed,
-    'CARD_EFFECT_USED'   => ActivityLogType.cardPlayed,
-    'CARD_PURCHASED'     => ActivityLogType.cardPurchased,
-    'CARD_PACK_OPENED'   => ActivityLogType.cardPurchased,
-    'MEMBER_JOINED'      => ActivityLogType.memberJoined,
-    'MEMBER_LEFT'        => ActivityLogType.memberLeft,
-    _                    => ActivityLogType.unknown,
+    'TASK_COMPLETED'        => ActivityLogType.taskCompleted,
+    'TASK_APPROVED'         => ActivityLogType.taskApproved,
+    'TASK_DISPUTED'         => ActivityLogType.taskDisputed,
+    'TASK_AUTO_APPROVED'    => ActivityLogType.taskAutoApproved,
+    'TASK_ASSIGNED'         => ActivityLogType.taskAssigned,
+    'TASK_UNASSIGNED'       => ActivityLogType.taskUnassigned,
+    'TASK_CREATED'          => ActivityLogType.taskCreated,
+    'TASK_DELETED'          => ActivityLogType.taskDeleted,
+    'CARD_PLAYED'           => ActivityLogType.cardPlayed,
+    'CARD_USED'             => ActivityLogType.cardPlayed,
+    'CARD_EFFECT'           => ActivityLogType.cardPlayed,
+    'CARD_EFFECT_USED'      => ActivityLogType.cardPlayed,
+    'CARD_PURCHASED'        => ActivityLogType.cardPurchased,
+    'CARD_PACK_OPENED'      => ActivityLogType.cardPurchased,
+    'MEMBER_JOINED'         => ActivityLogType.memberJoined,
+    'MEMBER_LEFT'           => ActivityLogType.memberLeft,
+    'MEMBER_KICKED'         => ActivityLogType.memberKicked,
+    'CAPTAIN_TRANSFERRED'   => ActivityLogType.captainTransferred,
+    _                       => ActivityLogType.unknown,
   };
 }
 
@@ -158,6 +162,8 @@ extension ActivityLogTypeInfo on ActivityLogType {
       ActivityLogType.cardPurchased    => [b(actor), n(' ha comprado un sobre de cartas')],
       ActivityLogType.memberJoined     => [n('Bienvenido '), b(actor), n(' a la casa')],
       ActivityLogType.memberLeft       => [b(actor), n(' ha abandonado la casa')],
+      ActivityLogType.memberKicked     => [b(actor), n(' ha sido expulsado de la casa')],
+      ActivityLogType.captainTransferred=> [b(actor), n(' ha sido nombrado capitán de la casa')],
       ActivityLogType.unknown          => card != null
           ? cardPlayedSpans()
           : [b(actor), n(' realizó una acción desconocida')],
@@ -181,9 +187,11 @@ extension ActivityLogTypeInfo on ActivityLogType {
       ActivityLogType.taskDeleted      => const Color(0xFFFDF5EE),
       ActivityLogType.cardPlayed       => const Color(0xFFFEF9EC),
       ActivityLogType.cardPurchased    => const Color(0xFFFEF9EC),
-      ActivityLogType.memberJoined     => const Color(0xFFEDF7F5),
-      ActivityLogType.memberLeft       => const Color(0xFFF5F5F5),
-      ActivityLogType.unknown          => const Color(0xFFFFFFFF),
+      ActivityLogType.memberJoined      => const Color(0xFFEDF7F5),
+      ActivityLogType.memberLeft        => const Color(0xFFF5F5F5),
+      ActivityLogType.memberKicked      => const Color(0xFFFDF0F0),
+      ActivityLogType.captainTransferred=> const Color(0xFFFFF8E1),
+      ActivityLogType.unknown           => const Color(0xFFFFFFFF),
     };
   }
 
@@ -200,6 +208,8 @@ extension ActivityLogTypeInfo on ActivityLogType {
     ActivityLogType.cardPurchased    => Icons.shopping_bag_rounded,
     ActivityLogType.memberJoined     => Icons.waving_hand_rounded,
     ActivityLogType.memberLeft       => Icons.exit_to_app_rounded,
+    ActivityLogType.memberKicked     => Icons.cancel_rounded,
+    ActivityLogType.captainTransferred=> Icons.star_rounded,
     ActivityLogType.unknown          => Icons.info_outline_rounded,
   };
 
@@ -216,6 +226,8 @@ extension ActivityLogTypeInfo on ActivityLogType {
     ActivityLogType.cardPurchased    => const Color(0xFFA44A3F),
     ActivityLogType.memberJoined     => const Color(0xFF00916E),
     ActivityLogType.memberLeft       => const Color(0xFF6B5E5B),
+    ActivityLogType.memberKicked     => const Color(0xFFBE6363),
+    ActivityLogType.captainTransferred=> const Color(0xFF00916E),
     ActivityLogType.unknown          => const Color(0xFFAA9E9B),
   };
 }
