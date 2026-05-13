@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/theme/app_widgets.dart';
 import '../../auth/data/auth_controller.dart';
 import '../../tasks/presentation/task_controller.dart';
 import '../domain/activity_model.dart';
@@ -58,32 +59,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text('Actividad', style: AppTextStyles.h1),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.accentLight.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${userSession?.kudosBalance ?? 0} Kudos',
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.accentLight),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: HouseClashAppBar(title: 'Actividad', kudos: userSession?.kudosBalance ?? 0),
       floatingActionButton: _showFab
           ? FloatingActionButton.small(
               backgroundColor: AppColors.accentBackground,
@@ -229,7 +205,6 @@ class _ActivityTile extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar
           Container(
             width: 40,
             height: 40,
@@ -247,7 +222,6 @@ class _ActivityTile extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +230,7 @@ class _ActivityTile extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: entry.type.cardBackground,
+                    color: entry.type.cardBackground(entry.cardType),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.border),
                     boxShadow: [
@@ -299,6 +273,70 @@ class _ActivityTile extends ConsumerWidget {
                                   ],
                                 ),
                             ],
+                          ),
+                        ),
+                      if ((type == ActivityLogType.cardPlayed ||
+                              type == ActivityLogType.cardPurchased ||
+                              (type == ActivityLogType.unknown && entry.cardType != null)) &&
+                          entry.cardType != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: type.cardColor(entry.cardType).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: type.cardColor(entry.cardType).withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  type.cardIcon(entry.cardType),
+                                  size: 14,
+                                  color: type.cardColor(entry.cardType),
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        type.formatCard(entry.cardType),
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: type.cardColor(entry.cardType),
+                                        ),
+                                      ),
+                                      Text(
+                                        type.cardDescription(entry.cardType),
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      if (entry.kudosValue != null) ...[
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.stars_rounded,
+                                                size: 12, color: AppColors.accentLight),
+                                            const SizedBox(width: 3),
+                                            Text(
+                                              _kudosLabel(entry.cardType, entry.kudosValue!),
+                                              style: AppTextStyles.labelSmall.copyWith(
+                                                color: AppColors.accentLight,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       Text.rich(
@@ -398,6 +436,18 @@ class _ActivityTile extends ConsumerWidget {
   bool _showKudos(ActivityLogType type) => type == ActivityLogType.taskCompleted ||
       type == ActivityLogType.taskApproved ||
       type == ActivityLogType.taskAutoApproved;
+
+  String _kudosLabel(String? cardType, int value) {
+    return switch (cardType) {
+      'STEAL_KUDOS'      => 'Robó $value Kudos',
+      'HOUSE_BONUS'      => '+$value Kudos a todos',
+      'MARKET_BOOST'     => '+$value Kudos a tareas',
+      'UNDERDOG_BOOST'   => '+$value Kudos a la tarea',
+      'CATEGORY_BOOST'   => '+$value Kudos a la categoría',
+      'VALUE_INFLATION'  => 'Tarea inflada a $value Kudos',
+      _                  => '$value Kudos',
+    };
+  }
 
 
   String _initials(String username) {

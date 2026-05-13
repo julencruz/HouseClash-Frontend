@@ -8,6 +8,7 @@ import '../../auth/domain/category_model.dart';
 import '../../auth/domain/task_models.dart';
 import 'category_controller.dart';
 import 'task_controller.dart';
+import '../../../core/theme/app_widgets.dart';
 import 'create_task_sheet.dart';
 
 class TasksScreen extends ConsumerStatefulWidget {
@@ -149,32 +150,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text('Tareas', style: AppTextStyles.h1),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.accentLight.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$kudos Kudos',
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.accentLight),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: HouseClashAppBar(title: 'Tareas', kudos: kudos),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -430,7 +406,33 @@ class _TaskCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(task.title, style: AppTextStyles.h2),
+          Row(
+            children: [
+              Expanded(child: Text(task.title, style: AppTextStyles.h2)),
+              if (task.isForced)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.push_pin_rounded, size: 11, color: AppColors.accent),
+                      const SizedBox(width: 3),
+                      Text('Forzada',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.accent,
+                            fontSize: 11,
+                          )),
+                    ],
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 10),
           _StatusBadge(status: status),
           ..._buildActions(ctx, ref, isMyTask, status),
@@ -454,6 +456,22 @@ class _TaskCard extends ConsumerWidget {
     if ((status == TaskStatus.assigned || status == TaskStatus.disputed) && isMyTask) {
       return [
         const SizedBox(height: 12),
+        if (task.isForced)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                const Icon(Icons.push_pin_rounded, size: 14, color: AppColors.accent),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Tarea forzada. No puedes desasignarte sin usar una carta.',
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.accent),
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (status == TaskStatus.disputed)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -474,38 +492,47 @@ class _TaskCard extends ConsumerWidget {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.undo_rounded, size: 16),
+                icon: Icon(
+                  task.isForced ? Icons.push_pin_rounded : Icons.undo_rounded,
+                  size: 16,
+                ),
                 label: const Text('Desasignar'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textSecondary,
-                  side: const BorderSide(color: AppColors.border),
+                  foregroundColor: task.isForced
+                      ? AppColors.textDisabled
+                      : AppColors.textSecondary,
+                  side: BorderSide(
+                    color: task.isForced ? AppColors.border : AppColors.border,
+                  ),
                   minimumSize: const Size(0, 38),
                   textStyle: AppTextStyles.labelMedium,
                 ),
-                onPressed: () async {
-                  final confirm = await showDialog<bool>(
-                    context: ctx,
-                    builder: (dialogCtx) => AlertDialog(
-                      title: const Text('Desasignar tarea'),
-                      content: const Text(
-                        'Si te desasignas de esta tarea perderás 3 kudos como penalización.\n\n¿Estás seguro?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(dialogCtx).pop(false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                          onPressed: () => Navigator.of(dialogCtx).pop(true),
-                          child: const Text('Desasignar (-3 kudos)'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirm != true) return;
-                  notifier.unassignTask(task.id);
-                },
+                onPressed: task.isForced
+                    ? null
+                    : () async {
+                        final confirm = await showDialog<bool>(
+                          context: ctx,
+                          builder: (dialogCtx) => AlertDialog(
+                            title: const Text('Desasignar tarea'),
+                            content: const Text(
+                              'Si te desasignas de esta tarea perderás 3 kudos como penalización.\n\n¿Estás seguro?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(dialogCtx).pop(false),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                                onPressed: () => Navigator.of(dialogCtx).pop(true),
+                                child: const Text('Desasignar (-3 kudos)'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm != true) return;
+                        notifier.unassignTask(task.id);
+                      },
               ),
             ),
             const SizedBox(width: 8),

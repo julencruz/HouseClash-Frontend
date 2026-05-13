@@ -13,6 +13,7 @@ import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/auth/data/auth_controller.dart';
 import '../../features/activity/presentation/activity_screen.dart';
+import '../../features/cards/presentation/cards_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
@@ -112,7 +113,7 @@ GoRouter appRouter(Ref ref) {
           ),
           GoRoute(
             path: AppRoutes.cards,
-            pageBuilder: (_, state) => const NoTransitionPage(child: PlaceholderScreen(label: 'Cartes')),
+            pageBuilder: (_, state) => const NoTransitionPage(child: CardsScreen()),
             routes: [
               GoRoute(
                 path: ':cardId',

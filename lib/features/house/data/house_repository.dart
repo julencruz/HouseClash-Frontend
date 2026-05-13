@@ -23,14 +23,19 @@ class HouseRepository {
   })  : _dio          = dio,
         _houseStorage = houseStorage;
 
+  Future<List<UserSession>> getMembers() async {
+    final response = await _dio.get('/api/houses/me');
+    final membersList = response.data['members'] as List;
+    return membersList.map((json) => UserSession.fromJson(json)).toList();
+  }
+
   Future<void> joinHouse(String inviteCode) async {
     final response = await _dio.post(
       '/api/houses/join',
       data: {'inviteCode': inviteCode},
     );
     final user = UserSession.fromJson(response.data);
-    
-    // Fetch house details to get the creator
+
     final houseResp = await _dio.get('/api/houses/me');
     final createdBy = houseResp.data['house']['createdBy'] as int;
     

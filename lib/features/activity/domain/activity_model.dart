@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../cards/domain/card_model.dart';
+
 enum ActivityLogType {
   taskCompleted,
   taskApproved,
@@ -25,7 +27,11 @@ enum ActivityLogType {
     'TASK_CREATED'       => ActivityLogType.taskCreated,
     'TASK_DELETED'       => ActivityLogType.taskDeleted,
     'CARD_PLAYED'        => ActivityLogType.cardPlayed,
+    'CARD_USED'          => ActivityLogType.cardPlayed,
+    'CARD_EFFECT'        => ActivityLogType.cardPlayed,
+    'CARD_EFFECT_USED'   => ActivityLogType.cardPlayed,
     'CARD_PURCHASED'     => ActivityLogType.cardPurchased,
+    'CARD_PACK_OPENED'   => ActivityLogType.cardPurchased,
     'MEMBER_JOINED'      => ActivityLogType.memberJoined,
     'MEMBER_LEFT'        => ActivityLogType.memberLeft,
     _                    => ActivityLogType.unknown,
@@ -81,7 +87,25 @@ class ActivityModel {
 }
 
 extension ActivityLogTypeInfo on ActivityLogType {
-  String _formatCard(String? card) => card?.replaceAll('_', ' ') ?? '';
+  String formatCard(String? card) {
+    if (card == null) return '';
+    return CardType.fromString(card).displayName;
+  }
+
+  String cardDescription(String? card) {
+    if (card == null) return '';
+    return CardType.fromString(card).description;
+  }
+
+  IconData cardIcon(String? card) {
+    if (card == null) return Icons.style_rounded;
+    return CardType.fromString(card).icon;
+  }
+
+  Color cardColor(String? card) {
+    if (card == null) return const Color(0xFFA44A3F);
+    return CardType.fromString(card).color;
+  }
 
   TextSpan richMessage(
     String actor,
@@ -103,31 +127,38 @@ extension ActivityLogTypeInfo on ActivityLogType {
       ActivityLogType.taskUnassigned   => [b(actor), n(' se ha desasignado de '), b(task ?? '')],
       ActivityLogType.taskCreated      => [b(actor), n(' ha creado la tarea '), b(task ?? '')],
       ActivityLogType.taskDeleted      => [b(actor), n(' ha eliminado la tarea '), b(task ?? '')],
-      ActivityLogType.cardPlayed       => [b(actor), n(' ha lanzado la carta '), b(_formatCard(card)), if (target != null) ...[n(' a '), b(target)]],
+      ActivityLogType.cardPlayed       => [b(actor), n(' ha usado la carta '), b(formatCard(card)), if (target != null) ...[n(' a '), b(target)]],
       ActivityLogType.cardPurchased    => [b(actor), n(' ha comprado un sobre de cartas')],
       ActivityLogType.memberJoined     => [n('Bienvenido '), b(actor), n(' a la casa')],
       ActivityLogType.memberLeft       => [b(actor), n(' ha abandonado la casa')],
-      ActivityLogType.unknown          => [b(actor), n(' realizó una acción desconocida')],
+      ActivityLogType.unknown          => card != null
+          ? [b(actor), n(' ha usado la carta '), b(formatCard(card)), if (target != null) ...[n(' a '), b(target)]]
+          : [b(actor), n(' realizó una acción desconocida')],
     };
 
     return TextSpan(children: spans);
   }
 
-  Color get cardBackground => switch (this) {
-    ActivityLogType.taskCompleted    => const Color(0xFFEDF7F1),
-    ActivityLogType.taskApproved     => const Color(0xFFEDF7F1),
-    ActivityLogType.taskAutoApproved => const Color(0xFFEDF7F1),
-    ActivityLogType.taskDisputed     => const Color(0xFFFDF0F0),
-    ActivityLogType.taskAssigned     => const Color(0xFFF3F5F6),
-    ActivityLogType.taskCreated      => const Color(0xFFF4EFF4),
-    ActivityLogType.taskUnassigned   => const Color(0xFFFDF5EE),
-    ActivityLogType.taskDeleted      => const Color(0xFFFDF5EE),
-    ActivityLogType.cardPlayed       => const Color(0xFFFEF9EC),
-    ActivityLogType.cardPurchased    => const Color(0xFFFEF9EC),
-    ActivityLogType.memberJoined     => const Color(0xFFEDF7F5),
-    ActivityLogType.memberLeft       => const Color(0xFFF5F5F5),
-    ActivityLogType.unknown          => const Color(0xFFFFFFFF),
-  };
+  Color cardBackground(String? cardTypeStr) {
+    if (this == ActivityLogType.unknown && cardTypeStr != null) {
+      return const Color(0xFFFEF9EC);
+    }
+    return switch (this) {
+      ActivityLogType.taskCompleted    => const Color(0xFFEDF7F1),
+      ActivityLogType.taskApproved     => const Color(0xFFEDF7F1),
+      ActivityLogType.taskAutoApproved => const Color(0xFFEDF7F1),
+      ActivityLogType.taskDisputed     => const Color(0xFFFDF0F0),
+      ActivityLogType.taskAssigned     => const Color(0xFFF3F5F6),
+      ActivityLogType.taskCreated      => const Color(0xFFF4EFF4),
+      ActivityLogType.taskUnassigned   => const Color(0xFFFDF5EE),
+      ActivityLogType.taskDeleted      => const Color(0xFFFDF5EE),
+      ActivityLogType.cardPlayed       => const Color(0xFFFEF9EC),
+      ActivityLogType.cardPurchased    => const Color(0xFFFEF9EC),
+      ActivityLogType.memberJoined     => const Color(0xFFEDF7F5),
+      ActivityLogType.memberLeft       => const Color(0xFFF5F5F5),
+      ActivityLogType.unknown          => const Color(0xFFFFFFFF),
+    };
+  }
 
   IconData get icon => switch (this) {
     ActivityLogType.taskCompleted    => Icons.check_circle_outline_rounded,
