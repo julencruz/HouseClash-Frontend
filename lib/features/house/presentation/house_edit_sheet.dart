@@ -92,10 +92,30 @@ class _HouseEditSheetState extends ConsumerState<_HouseEditSheet>
     );
     if (!ok || !mounted) return;
     try {
-      await ref.read(houseDetailsControllerProvider.notifier).kickMember(member.id);
-      if (mounted) _showSuccess('${member.username} expulsado');
+      await ref
+          .read(houseDetailsControllerProvider.notifier)
+          .kickMember(member.id);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      _showSuccess('${member.username} expulsado');
     } catch (e) {
-      if (mounted) _showError('Error: $e');
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        useRootNavigator: true,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.card,
+          title: Text('Error al expulsar', style: AppTextStyles.h3),
+          content: Text('$e', style: AppTextStyles.bodyMedium),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cerrar',
+                  style: TextStyle(color: AppColors.primary)),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -159,6 +179,7 @@ class _HouseEditSheetState extends ConsumerState<_HouseEditSheet>
   }) async {
     final result = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
         title: Text(title, style: AppTextStyles.h3),
@@ -190,6 +211,7 @@ class _HouseEditSheetState extends ConsumerState<_HouseEditSheet>
     final ctrl = TextEditingController(text: initial);
     final result = await showDialog<String>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
         title: Text(title, style: AppTextStyles.h3),
