@@ -205,7 +205,19 @@ class _ActivityTile extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          entry.type == ActivityLogType.marketInflation
+              ? Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3E0),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE65100).withValues(alpha: 0.3)),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+                )
+              : Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(

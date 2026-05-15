@@ -17,6 +17,7 @@ enum ActivityLogType {
   memberLeft,
   memberKicked,
   captainTransferred,
+  marketInflation,
   unknown;
 
   static ActivityLogType fromString(String value) => switch (value) {
@@ -38,6 +39,7 @@ enum ActivityLogType {
     'MEMBER_LEFT'           => ActivityLogType.memberLeft,
     'MEMBER_KICKED'         => ActivityLogType.memberKicked,
     'CAPTAIN_TRANSFERRED'   => ActivityLogType.captainTransferred,
+    'MARKET_INFLATION'      => ActivityLogType.marketInflation,
     _                       => ActivityLogType.unknown,
   };
 }
@@ -164,6 +166,7 @@ extension ActivityLogTypeInfo on ActivityLogType {
       ActivityLogType.memberLeft       => [b(actor), n(' ha abandonado la casa')],
       ActivityLogType.memberKicked     => [b(actor), n(' ha sido expulsado de la casa')],
       ActivityLogType.captainTransferred=> [b(actor), n(' ha sido nombrado capitán de la casa')],
+      ActivityLogType.marketInflation   => [b('HouseClash'), n(': El precio de las tareas disponisbles se ha revalorizado por la inflación')],
       ActivityLogType.unknown          => card != null
           ? cardPlayedSpans()
           : [b(actor), n(' realizó una acción desconocida')],
@@ -191,6 +194,7 @@ extension ActivityLogTypeInfo on ActivityLogType {
       ActivityLogType.memberLeft        => const Color(0xFFF5F5F5),
       ActivityLogType.memberKicked      => const Color(0xFFFDF0F0),
       ActivityLogType.captainTransferred=> const Color(0xFFFFF8E1),
+      ActivityLogType.marketInflation   => const Color(0xFFFFF3E0),
       ActivityLogType.unknown           => const Color(0xFFFFFFFF),
     };
   }
@@ -210,6 +214,7 @@ extension ActivityLogTypeInfo on ActivityLogType {
     ActivityLogType.memberLeft       => Icons.exit_to_app_rounded,
     ActivityLogType.memberKicked     => Icons.cancel_rounded,
     ActivityLogType.captainTransferred=> Icons.star_rounded,
+    ActivityLogType.marketInflation   => Icons.trending_up_rounded,
     ActivityLogType.unknown          => Icons.info_outline_rounded,
   };
 
@@ -228,6 +233,7 @@ extension ActivityLogTypeInfo on ActivityLogType {
     ActivityLogType.memberLeft       => const Color(0xFF6B5E5B),
     ActivityLogType.memberKicked     => const Color(0xFFBE6363),
     ActivityLogType.captainTransferred=> const Color(0xFF00916E),
+    ActivityLogType.marketInflation   => const Color(0xFFE65100),
     ActivityLogType.unknown          => const Color(0xFFAA9E9B),
   };
 }
