@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/auth/house_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_widgets.dart';
@@ -57,6 +58,15 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final activityAsync = ref.watch(activityControllerProvider);
     final userSession = ref.watch(authControllerProvider).valueOrNull;
 
+    // Auto-refresca cuando el usuario se une/crea una casa
+    ref.listen(houseStorageProvider, (previous, next) {
+      final hadHouse = previous?.valueOrNull != null;
+      final hasHouse = next.valueOrNull != null;
+      if (!hadHouse && hasHouse) {
+        ref.read(activityControllerProvider.notifier).refresh();
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: HouseClashAppBar(title: 'Actividad', kudos: userSession?.kudosBalance ?? 0),
@@ -73,10 +83,21 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         data: (activityState) {
           final entries = activityState.entries;
           if (entries.isEmpty) {
-            return Center(
-              child: Text(
-                'No hay actividad reciente',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textHint),
+            return RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () => ref.read(activityControllerProvider.notifier).refresh(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        'No hay actividad reciente',
+                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textHint),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -89,6 +110,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             onRefresh: () => ref.read(activityControllerProvider.notifier).refresh(),
             child: ListView.builder(
               controller: _scroll,
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 24),
               itemCount: days.length + (activityState.isLoadingMore ? 1 : 0),
               itemBuilder: (context, i) {
@@ -122,15 +144,26 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Error al cargar actividad', style: AppTextStyles.bodyMedium),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => ref.read(activityControllerProvider.notifier).refresh(),
-                child: const Text('Reintentar'),
+        error: (err, _) => RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () => ref.read(activityControllerProvider.notifier).refresh(),
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Error al cargar actividad', style: AppTextStyles.bodyMedium),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () => ref.read(activityControllerProvider.notifier).refresh(),
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -298,6 +331,7 @@ class _ActivityTile extends ConsumerWidget {
                                   if (entry.taskId != null) {
                                     await ref.read(taskControllerProvider.notifier)
                                         .validateTask(entry.taskId!, 'DISPUTE');
+                                    ref.read(authControllerProvider.notifier).refreshProfile();
                                     ref.read(activityControllerProvider.notifier).refresh();
                                   }
                                 },
@@ -318,6 +352,7 @@ class _ActivityTile extends ConsumerWidget {
                                   if (entry.taskId != null) {
                                     await ref.read(taskControllerProvider.notifier)
                                         .validateTask(entry.taskId!, 'APPROVE');
+                                    ref.read(authControllerProvider.notifier).refreshProfile();
                                     ref.read(activityControllerProvider.notifier).refresh();
                                   }
                                 },

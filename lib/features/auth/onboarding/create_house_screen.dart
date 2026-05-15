@@ -4,8 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../activity/presentation/activity_controller.dart';
 import '../../auth/data/auth_controller.dart';
+import '../../cards/presentation/card_controller.dart';
 import '../../house/data/house_controller.dart';
+import '../../house/presentation/house_details_controller.dart';
+import '../../house/presentation/ranking_controller.dart';
+import '../../tasks/presentation/category_controller.dart';
+import '../../tasks/presentation/task_controller.dart';
 
 class CreateHouseScreen extends ConsumerStatefulWidget {
   const CreateHouseScreen({super.key});
@@ -26,6 +32,16 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
     super.dispose();
   }
 
+  Future<void> _refreshAllCache() async {
+    await ref.read(authControllerProvider.notifier).refreshProfile();
+    ref.read(taskControllerProvider.notifier).refresh();
+    ref.read(cardControllerProvider.notifier).refresh();
+    ref.read(activityControllerProvider.notifier).refresh();
+    ref.invalidate(houseDetailsControllerProvider);
+    ref.invalidate(rankingControllerProvider);
+    ref.invalidate(categoryControllerProvider);
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final code = await ref.read(houseControllerProvider.notifier).createHouse(
@@ -35,7 +51,7 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
           : _descriptionController.text.trim(),
     );
     if (code != null && mounted) {
-      await ref.read(authControllerProvider.notifier).refreshProfile();
+      await _refreshAllCache();
       if (mounted) context.go('${AppRoutes.houseCreatedSuccess}?code=$code');
     }
   }

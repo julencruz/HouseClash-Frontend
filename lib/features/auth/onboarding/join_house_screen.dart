@@ -5,8 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../activity/presentation/activity_controller.dart';
 import '../../auth/data/auth_controller.dart';
+import '../../cards/presentation/card_controller.dart';
 import '../../house/data/house_controller.dart';
+import '../../house/presentation/house_details_controller.dart';
+import '../../house/presentation/ranking_controller.dart';
+import '../../tasks/presentation/category_controller.dart';
+import '../../tasks/presentation/task_controller.dart';
 
 class JoinHouseScreen extends ConsumerStatefulWidget {
   const JoinHouseScreen({super.key});
@@ -18,11 +24,21 @@ class JoinHouseScreen extends ConsumerStatefulWidget {
 class _JoinHouseScreenState extends ConsumerState<JoinHouseScreen> {
   String _inviteCode = '';
 
+  Future<void> _refreshAllCache() async {
+    await ref.read(authControllerProvider.notifier).refreshProfile();
+    ref.read(taskControllerProvider.notifier).refresh();
+    ref.read(cardControllerProvider.notifier).refresh();
+    ref.read(activityControllerProvider.notifier).refresh();
+    ref.invalidate(houseDetailsControllerProvider);
+    ref.invalidate(rankingControllerProvider);
+    ref.invalidate(categoryControllerProvider);
+  }
+
   Future<void> _submit() async {
     if (_inviteCode.length < 6) return;
     await ref.read(houseControllerProvider.notifier).joinHouse(_inviteCode);
     if (mounted && !ref.read(houseControllerProvider).hasError) {
-      await ref.read(authControllerProvider.notifier).refreshProfile();
+      await _refreshAllCache();
     }
   }
 

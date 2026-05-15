@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../activity/presentation/activity_controller.dart';
 import '../../auth/data/auth_controller.dart';
+import '../../tasks/presentation/task_controller.dart';
 import '../data/card_repository.dart';
 import '../domain/card_model.dart';
 
@@ -38,6 +40,8 @@ class CardController extends _$CardController {
       targetCategoryId: targetCategoryId,
     );
     ref.read(authControllerProvider.notifier).refreshProfile();
+    ref.read(activityControllerProvider.notifier).refresh();
+    ref.read(taskControllerProvider.notifier).refresh();
     state = await AsyncValue.guard(() => _fetch(forceRefresh: true));
   }
 }
