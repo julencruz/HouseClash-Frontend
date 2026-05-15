@@ -212,7 +212,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
                 return RefreshIndicator(
                   color: AppColors.primary,
-                  onRefresh: () => ref.read(taskControllerProvider.notifier).refresh(),
+                  onRefresh: () async {
+                    await ref.read(taskControllerProvider.notifier).refresh();
+                    await ref.read(authControllerProvider.notifier).refreshProfile();
+                  },
                   child: ListView.builder(
                     padding: const EdgeInsets.only(bottom: 100, left: 16, right: 16, top: 10),
                     itemCount: filtered.length,

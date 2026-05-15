@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../auth/data/auth_controller.dart';
 import '../../house/data/house_controller.dart';
 
 class CreateHouseScreen extends ConsumerStatefulWidget {
@@ -34,7 +35,8 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
           : _descriptionController.text.trim(),
     );
     if (code != null && mounted) {
-      context.go('${AppRoutes.houseCreatedSuccess}?code=$code');
+      await ref.read(authControllerProvider.notifier).refreshProfile();
+      if (mounted) context.go('${AppRoutes.houseCreatedSuccess}?code=$code');
     }
   }
 

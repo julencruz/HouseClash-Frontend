@@ -25,7 +25,10 @@ class CardsScreen extends ConsumerWidget {
       appBar: HouseClashAppBar(title: 'Tienda', kudos: kudos),
       body: RefreshIndicator(
         color: AppColors.primary,
-        onRefresh: () => ref.read(cardControllerProvider.notifier).refresh(),
+        onRefresh: () async {
+          await ref.read(cardControllerProvider.notifier).refresh();
+          await ref.read(authControllerProvider.notifier).refreshProfile();
+        },
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(

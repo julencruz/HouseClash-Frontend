@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../auth/data/auth_controller.dart';
 import '../../house/data/house_controller.dart';
 
 class JoinHouseScreen extends ConsumerStatefulWidget {
@@ -20,6 +21,9 @@ class _JoinHouseScreenState extends ConsumerState<JoinHouseScreen> {
   Future<void> _submit() async {
     if (_inviteCode.length < 6) return;
     await ref.read(houseControllerProvider.notifier).joinHouse(_inviteCode);
+    if (mounted && !ref.read(houseControllerProvider).hasError) {
+      await ref.read(authControllerProvider.notifier).refreshProfile();
+    }
   }
 
   String _parseError(Object? error) {

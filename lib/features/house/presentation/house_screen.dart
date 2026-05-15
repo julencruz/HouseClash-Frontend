@@ -131,6 +131,7 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
           onRefresh: () async {
             await ref.read(houseDetailsControllerProvider.notifier).refresh();
             await ref.read(rankingControllerProvider.notifier).refresh();
+            await ref.read(authControllerProvider.notifier).refreshProfile();
           },
           child: Column(
             children: [
@@ -155,13 +156,13 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
                   child: Row(
                     children: [
                       _SegmentTab(
-                        label: 'Líderes de Kudos',
+                        label: 'Los más ricos',
                         active: _activeTab == _RankingTab.kudos,
                         onTap: () =>
                             setState(() => _activeTab = _RankingTab.kudos),
                       ),
                       _SegmentTab(
-                        label: 'Maestros de Tareas',
+                        label: 'Los más trabajadores',
                         active: _activeTab == _RankingTab.tasks,
                         onTap: () =>
                             setState(() => _activeTab = _RankingTab.tasks),
