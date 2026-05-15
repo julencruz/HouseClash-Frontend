@@ -63,6 +63,22 @@ class AuthRepository {
     return UserSession.fromJson(response.data);
   }
 
+  Future<UserSession> updateProfile({
+    String? username,
+    String? oldPassword,
+    String? newPassword,
+  }) async {
+    final response = await _dio.patch(
+      '/api/users/me',
+      data: {
+        if (username != null) 'username': username,
+        if (oldPassword != null) 'oldPassword': oldPassword,
+        if (newPassword != null) 'newPassword': newPassword,
+      },
+    );
+    return UserSession.fromJson(response.data);
+  }
+
   Future<void> logout() async {
     await _tokenStorage.clearToken();
     await _houseStorage.clearHouse();

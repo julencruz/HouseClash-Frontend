@@ -39,6 +39,19 @@ class AuthController extends _$AuthController {
     state = updated;
   }
 
+  Future<void> updateProfile({
+    String? username,
+    String? oldPassword,
+    String? newPassword,
+  }) async {
+    final updated = await ref.read(authRepositoryProvider).updateProfile(
+      username: username,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    );
+    state = AsyncData(updated);
+  }
+
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);

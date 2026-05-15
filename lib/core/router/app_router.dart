@@ -10,6 +10,7 @@ import '../../features/auth/onboarding/create_house_screen.dart';
 import '../../features/auth/onboarding/house_created_success_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/profile_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/auth/data/auth_controller.dart';
 import '../../features/activity/presentation/activity_screen.dart';
@@ -131,14 +132,6 @@ GoRouter appRouter(Ref ref) {
           GoRoute(
             path: AppRoutes.cards,
             pageBuilder: (_, state) => const NoTransitionPage(child: CardsScreen()),
-            routes: [
-              GoRoute(
-                path: ':cardId',
-                builder: (_, state) => PlaceholderScreen(
-                  label: 'Detall carta ${state.pathParameters['cardId']}',
-                ),
-              ),
-            ],
           ),
           GoRoute(
             path: AppRoutes.ranking,
@@ -150,7 +143,7 @@ GoRouter appRouter(Ref ref) {
           ),
           GoRoute(
             path: AppRoutes.profile,
-            pageBuilder: (_, state) => const NoTransitionPage(child: PlaceholderScreen(label: 'Perfil')),
+            pageBuilder: (_, state) => const NoTransitionPage(child: ProfileScreen()),
           ),
         ],
       ),
