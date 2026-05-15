@@ -32,7 +32,6 @@ class HouseClashAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Badge de Kudos estandarizado. Úsalo en AppBar actions o headers.
 class KudosBadge extends StatelessWidget {
   const KudosBadge({super.key, required this.kudos});
   final int kudos;
@@ -55,6 +54,62 @@ class KudosBadge extends StatelessWidget {
             style: AppTextStyles.labelMedium.copyWith(color: AppColors.accentLight),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({
+    super.key,
+    required this.username,
+    this.size = 40,
+  });
+
+  final String username;
+  final double size;
+
+  static const _colors = [
+    AppColors.primary,
+    AppColors.accent,
+    AppColors.gold,
+    AppColors.silver,
+    AppColors.bronze,
+  ];
+
+  Color get _color {
+    if (username.isEmpty) return AppColors.primary;
+    final hash = username.codeUnits.fold(0, (a, b) => a + b);
+    return _colors[hash % _colors.length];
+  }
+
+  String get _initials {
+    final parts = username.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return username.substring(0, username.length.clamp(1, 2)).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fontSize = size * 0.36;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: _color.withValues(alpha: 0.18),
+        shape: BoxShape.circle,
+        border: Border.all(color: _color.withValues(alpha: 0.45), width: size >= 60 ? 2 : 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _initials,
+        style: AppTextStyles.labelMedium.copyWith(
+          color: _color,
+          fontSize: fontSize,
+          height: 1,
+        ),
       ),
     );
   }

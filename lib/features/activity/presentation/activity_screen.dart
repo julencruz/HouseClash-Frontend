@@ -231,7 +231,6 @@ class _ActivityTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final type = entry.type;
     final time = DateFormat('HH:mm').format(entry.createdAt.toLocal());
-    final initials = _initials(entry.actorUsername);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -244,28 +243,13 @@ class _ActivityTile extends ConsumerWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3E0),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE65100).withValues(alpha: 0.3)),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFE65100).withValues(alpha: 0.3), width: 1.5),
                   ),
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
                 )
-              : Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _avatarColor(entry.actorUsername),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              initials,
-              style: AppTextStyles.labelMedium.copyWith(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
+              : UserAvatar(username: entry.actorUsername),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -385,27 +369,5 @@ class _ActivityTile extends ConsumerWidget {
       ),
     );
   }
-
-
-  String _initials(String username) {
-    final parts = username.trim().split(RegExp(r'\s+'));
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
-    return username.substring(0, username.length.clamp(0, 2)).toUpperCase();
-  }
-
-  Color _avatarColor(String username) {
-    final colors = [
-      const Color(0xFF00916E),
-      const Color(0xFFA44A3F),
-      const Color(0xFF4A6FA5),
-      const Color(0xFF6B5E5B),
-      const Color(0xFFBE7E63),
-      const Color(0xFF5C7A3E),
-      const Color(0xFF7B5EA7),
-    ];
-    final hash = username.codeUnits.fold(0, (a, b) => a + b);
-    return colors[hash % colors.length];
-  }
 }
+

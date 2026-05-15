@@ -115,46 +115,11 @@ class _AvatarSection extends StatelessWidget {
 
   final UserSession user;
 
-  static const _avatarColors = [
-    AppColors.primary,
-    AppColors.accent,
-    AppColors.gold,
-    AppColors.silver,
-    AppColors.bronze,
-  ];
-
-  Color get _color => user.username.isEmpty
-      ? AppColors.primary
-      : _avatarColors[user.username.codeUnitAt(0) % _avatarColors.length];
-
-  String get _initials {
-    final parts = user.username.trim().split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
-    return user.username.length >= 2
-        ? user.username.substring(0, 2).toUpperCase()
-        : user.username.toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 88,
-          height: 88,
-          decoration: BoxDecoration(
-            color: _color.withValues(alpha: 0.18),
-            shape: BoxShape.circle,
-            border: Border.all(color: _color.withValues(alpha: 0.35), width: 2),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            _initials,
-            style: AppTextStyles.h1.copyWith(color: _color, fontSize: 32),
-          ),
-        ),
+        UserAvatar(username: user.username, size: 88),
         const SizedBox(height: 16),
         Text(user.username, style: AppTextStyles.h2),
         const SizedBox(height: 4),
