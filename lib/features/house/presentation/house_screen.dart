@@ -135,9 +135,39 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
           },
           child: Column(
             children: [
+              // ── Descripción de la casa ────────────────────
+              if (details.house.description.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.info_outline_rounded,
+                            size: 16, color: AppColors.textHint),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            details.house.description,
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
               // ── Código de invitación ─────────────────────
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                padding: EdgeInsets.fromLTRB(20, details.house.description.isNotEmpty ? 12 : 16, 20, 12),
                 child: _InviteSection(
                   inviteCode: details.house.inviteCode,
                   isCaptain: isCaptain,
