@@ -135,7 +135,6 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
           },
           child: Column(
             children: [
-              // ── Descripción de la casa ────────────────────
               if (details.house.description.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -165,7 +164,6 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
                   ),
                 ),
 
-              // ── Código de invitación ─────────────────────
               Padding(
                 padding: EdgeInsets.fromLTRB(20, details.house.description.isNotEmpty ? 12 : 16, 20, 12),
                 child: _InviteSection(
@@ -174,7 +172,6 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
                 ),
               ),
 
-              // ── Segmented control ────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Container(
@@ -204,7 +201,6 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
 
               const Divider(height: 1, color: AppColors.border),
 
-              // ── Ranking list ─────────────────────────────
               Expanded(
                 child: _buildRankingBody(
                     rankingAsync, currentUserId),

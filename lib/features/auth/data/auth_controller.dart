@@ -1,5 +1,11 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/auth/token_storage.dart';
+import '../../../features/activity/presentation/activity_controller.dart';
+import '../../../features/cards/presentation/card_controller.dart';
+import '../../../features/house/presentation/house_details_controller.dart';
+import '../../../features/house/presentation/ranking_controller.dart';
+import '../../../features/tasks/presentation/category_controller.dart';
+import '../../../features/tasks/presentation/task_controller.dart';
 import '../domain/auth_models.dart';
 import 'auth_repository.dart';
 
@@ -54,6 +60,12 @@ class AuthController extends _$AuthController {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    ref.invalidate(taskControllerProvider);
+    ref.invalidate(cardControllerProvider);
+    ref.invalidate(activityControllerProvider);
+    ref.invalidate(houseDetailsControllerProvider);
+    ref.invalidate(rankingControllerProvider);
+    ref.invalidate(categoryControllerProvider);
     state = const AsyncData(null);
   }
 }
