@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../auth/data/auth_controller.dart';
 import '../../auth/domain/task_models.dart';
+import '../../house/presentation/house_details_controller.dart';
 import 'create_task_sheet.dart' show EditTaskSheet;
 import 'task_controller.dart';
 import 'tasks_screen.dart' show getCategoryDisplayName;
@@ -28,6 +29,10 @@ class TaskDetailScreen extends ConsumerWidget {
         houseSession.isCaptain(currentUserId);
     final isMyTask = current.assignedTo == currentUserId;
     final status = current.status;
+    final members = ref.watch(houseDetailsControllerProvider).valueOrNull?.members ?? [];
+    final assigneeName = current.assignedTo != null
+        ? members.where((m) => m.id == current.assignedTo).map((m) => m.username).firstOrNull
+        : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -39,18 +44,16 @@ class TaskDetailScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
-          // Mantenemos la acción de editar en la parte superior
-          if (isCaptain || (isMyTask && status == TaskStatus.assigned))
-            IconButton(
-              icon: const Icon(Icons.edit_rounded, color: AppColors.textPrimary),
-              tooltip: 'Editar tarea',
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                builder: (_) => EditTaskSheet(task: current),
-              ),
+          IconButton(
+            icon: const Icon(Icons.edit_rounded, color: AppColors.textPrimary),
+            tooltip: 'Editar tarea',
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              useSafeArea: true,
+              builder: (_) => EditTaskSheet(task: current),
             ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -58,7 +61,6 @@ class TaskDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // ── Título centrado ───────────────────────────
             Text(
               current.title,
               style: AppTextStyles.displayLarge,
@@ -66,13 +68,11 @@ class TaskDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
 
-            // ── Chips: categoría + kudos (estilo estándar) ──
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8,
               runSpacing: 8,
               children: [
-                // Categoría — estilo surface igual que en el card de tarea
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -92,7 +92,6 @@ class TaskDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                // Kudos — mismo estilo que KudosBadge en AppBar
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -111,7 +110,6 @@ class TaskDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                // Esfuerzo
                 _SecondaryChip(
                   icon: switch (current.effort) {
                     Effort.low    => Icons.battery_1_bar_rounded,
@@ -144,7 +142,6 @@ class TaskDetailScreen extends ConsumerWidget {
               ],
             ),
 
-            // ── Deadline centrado ──────────────────────────
             if (current.deadline != null) ...[
               const SizedBox(height: 14),
               _DeadlineBanner(deadline: current.deadline!),
@@ -152,10 +149,8 @@ class TaskDetailScreen extends ConsumerWidget {
 
             const SizedBox(height: 20),
 
-            // ── Estado ────────────────────────────────────
-            _StatusRow(status: status),
+            _StatusRow(status: status, assigneeName: current.isForced ? assigneeName : null),
 
-            // ── Tarjeta de Detalles ───────────────────────
             if (current.description != null && current.description!.isNotEmpty) ...[
               const SizedBox(height: 20),
               Container(
@@ -202,7 +197,6 @@ class TaskDetailScreen extends ConsumerWidget {
 
             const SizedBox(height: 32),
 
-            // ── Acciones ──────────────────────────────────
             _ActionButtons(
               task: current,
               isMyTask: isMyTask,
@@ -224,7 +218,6 @@ class TaskDetailScreen extends ConsumerWidget {
   };
 }
 
-// ── Chip secundario ────────────────────────────────────────
 class _SecondaryChip extends StatelessWidget {
   const _SecondaryChip({required this.icon, required this.label, required this.color});
   final IconData icon;
@@ -252,7 +245,6 @@ class _SecondaryChip extends StatelessWidget {
   }
 }
 
-// ── Banner de deadline (centrado) ─────────────────────────
 class _DeadlineBanner extends StatelessWidget {
   const _DeadlineBanner({required this.deadline});
   final DateTime deadline;
@@ -292,10 +284,10 @@ class _DeadlineBanner extends StatelessWidget {
   }
 }
 
-// ── Estado ─────────────────────────────────────────────────
 class _StatusRow extends StatelessWidget {
-  const _StatusRow({required this.status});
+  const _StatusRow({required this.status, this.assigneeName});
   final TaskStatus status;
+  final String? assigneeName;
 
   @override
   Widget build(BuildContext context) {
@@ -308,18 +300,27 @@ class _StatusRow extends StatelessWidget {
       TaskStatus.disputed      => ('Disputada',             AppColors.error,    Icons.error_rounded),
     };
 
+    final showAssignee = status == TaskStatus.assigned && assigneeName != null;
+    final displayLabel = showAssignee ? 'Asignada a $assigneeName' : label;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 5),
-        Text(label, style: AppTextStyles.labelMedium.copyWith(color: color)),
+        Flexible(
+          child: Text(
+            displayLabel,
+            style: AppTextStyles.labelMedium.copyWith(color: color),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
       ],
     );
   }
 }
 
-// ── Botones de acción ──────────────────────────────────────
 class _ActionButtons extends ConsumerWidget {
   const _ActionButtons({
     required this.task,
@@ -339,7 +340,6 @@ class _ActionButtons extends ConsumerWidget {
     final status = task.status;
     final buttons = <Widget>[];
 
-    // ── OPEN: asignar ─────────────────────────────────────
     if (status == TaskStatus.open) {
       buttons.add(_PrimaryButton(
         icon: Icons.person_add_rounded,
@@ -357,7 +357,6 @@ class _ActionButtons extends ConsumerWidget {
       ));
     }
 
-    // ── ASSIGNED / DISPUTED (mía) ─────────────────────────
     if ((status == TaskStatus.assigned || status == TaskStatus.disputed) && isMyTask) {
       if (task.isForced) {
         buttons.add(Padding(
@@ -436,7 +435,6 @@ class _ActionButtons extends ConsumerWidget {
       ]));
     }
 
-    // ── PENDING REVIEW (no mía) ────────────────────────────
     if (status == TaskStatus.pendingReview && !isMyTask) {
       buttons.add(Row(children: [
         Expanded(
@@ -471,7 +469,6 @@ class _ActionButtons extends ConsumerWidget {
       ]));
     }
 
-    // ── PENDING REVIEW (mía) ──────────────────────────────
     if (status == TaskStatus.pendingReview && isMyTask) {
       buttons.add(Row(children: [
         const Icon(Icons.hourglass_top_rounded, size: 14, color: AppColors.warning),
@@ -481,7 +478,6 @@ class _ActionButtons extends ConsumerWidget {
       ]));
     }
 
-    // ── Eliminar (capitán) ────────────────────────────────
     if (isCaptain) {
       if (buttons.isNotEmpty) buttons.add(const SizedBox(height: 12));
       buttons.add(_PrimaryButton(
@@ -516,7 +512,6 @@ class _ActionButtons extends ConsumerWidget {
   }
 }
 
-// ── Botón primario reutilizable ────────────────────────────
 class _PrimaryButton extends StatelessWidget {
   const _PrimaryButton({
     required this.icon,

@@ -5,8 +5,10 @@ import '../../../core/auth/house_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../auth/data/auth_controller.dart';
+import '../../auth/domain/auth_models.dart';
 import '../../auth/domain/category_model.dart';
 import '../../auth/domain/task_models.dart';
+import '../../house/presentation/house_details_controller.dart';
 import 'category_controller.dart';
 import 'task_controller.dart';
 import '../../../core/theme/app_widgets.dart';
@@ -145,6 +147,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     final categoriesAsync = ref.watch(categoryControllerProvider);
     final userSession = ref.watch(authControllerProvider).valueOrNull;
     final houseSession = ref.watch(houseStorageProvider).valueOrNull;
+    final houseDetails = ref.watch(houseDetailsControllerProvider).valueOrNull;
+    final members = houseDetails?.members ?? <UserSession>[];
     final kudos = userSession?.kudosBalance ?? 0;
     final isCaptain = userSession != null && houseSession != null
         && houseSession.isCaptain(userSession.id);
@@ -221,10 +225,15 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                     padding: const EdgeInsets.only(bottom: 100, left: 16, right: 16, top: 10),
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
+                      final task = filtered[index];
+                      final assigneeName = task.assignedTo != null
+                          ? members.where((m) => m.id == task.assignedTo).map((m) => m.username).firstOrNull
+                          : null;
                       return _TaskCard(
-                        task: filtered[index],
+                        task: task,
                         currentUserId: userSession?.id,
                         isCaptain: isCaptain,
+                        assigneeName: assigneeName,
                       );
                     },
                   ),
@@ -266,11 +275,13 @@ class _TaskCard extends ConsumerWidget {
     required this.task,
     required this.currentUserId,
     required this.isCaptain,
+    this.assigneeName,
   });
 
   final TaskModel task;
   final int? currentUserId;
   final bool isCaptain;
+  final String? assigneeName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -287,12 +298,8 @@ class _TaskCard extends ConsumerWidget {
     final canAssign = status == TaskStatus.open;
 
     DismissDirection direction;
-    if (isCaptain && canAssign) {
-      direction = DismissDirection.horizontal;
-    } else if (isCaptain) {
+    if (isCaptain) {
       direction = DismissDirection.startToEnd;
-    } else if (canAssign) {
-      direction = DismissDirection.endToStart;
     } else {
       direction = DismissDirection.none;
     }
@@ -442,8 +449,7 @@ class _TaskCard extends ConsumerWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _StatusBadge(status: status)),
-                // Botón rápido solo para tareas abiertas
+                Expanded(child: _StatusBadge(status: status, assigneeName: task.isForced ? assigneeName : null)),
                 if (status == TaskStatus.open)
                   GestureDetector(
                     onTap: () {
@@ -650,8 +656,9 @@ class _TaskCard extends ConsumerWidget {
 }
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+  const _StatusBadge({required this.status, this.assigneeName});
   final TaskStatus status;
+  final String? assigneeName;
 
   @override
   Widget build(BuildContext context) {
@@ -664,12 +671,22 @@ class _StatusBadge extends StatelessWidget {
       TaskStatus.disputed      => ('Disputada',           AppColors.error,        Icons.error_rounded),
     };
 
+    final showAssignee = status == TaskStatus.assigned && assigneeName != null;
+    final displayLabel = showAssignee ? 'Asignada a $assigneeName' : label;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 13, color: color),
         const SizedBox(width: 4),
-        Text(label, style: AppTextStyles.labelSmall.copyWith(color: color)),
+        Flexible(
+          child: Text(
+            displayLabel,
+            style: AppTextStyles.labelSmall.copyWith(color: color),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
       ],
     );
   }

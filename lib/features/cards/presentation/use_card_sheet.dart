@@ -161,7 +161,6 @@ class _UseCardSheetState extends ConsumerState<_UseCardSheet> {
         ),
         child: Column(
           children: [
-            // Handle
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 4),
               child: Container(

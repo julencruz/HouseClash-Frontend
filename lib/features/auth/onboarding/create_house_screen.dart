@@ -112,7 +112,6 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Nombre
                 Text('Nombre de la casa', style: AppTextStyles.labelLarge),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -130,7 +129,6 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Descripción
                 Text('Descripción (opcional)', style: AppTextStyles.labelLarge),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -147,7 +145,6 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Botón crear
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -175,7 +172,6 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Alternativa
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -197,7 +193,6 @@ class _CreateHouseScreenState extends ConsumerState<CreateHouseScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Info cards
                 const _InfoCard(
                   icon: Icons.star_rounded,
                   iconColor: AppColors.gold,

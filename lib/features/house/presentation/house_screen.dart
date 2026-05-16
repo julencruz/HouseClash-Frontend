@@ -272,7 +272,6 @@ class _HouseScreenState extends ConsumerState<HouseScreen> {
   }
 }
 
-// ── Sección código de invitación ──────────────────────────────
 
 class _InviteSection extends StatelessWidget {
   const _InviteSection({
@@ -387,7 +386,6 @@ class _InviteSection extends StatelessWidget {
   }
 }
 
-// ── Segmented tab ─────────────────────────────────────────────
 
 enum _RankingTab { kudos, tasks }
 
@@ -437,7 +435,6 @@ class _SegmentTab extends StatelessWidget {
   }
 }
 
-// ── Ranking tile ──────────────────────────────────────────────
 
 class _RankingTile extends StatelessWidget {
   const _RankingTile({

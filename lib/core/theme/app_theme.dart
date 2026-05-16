@@ -23,7 +23,6 @@ abstract class AppTheme {
         surfaceContainerHighest: AppColors.surfaceVariant,
       ),
 
-      // AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
@@ -46,7 +45,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // Bottom Nav
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.card,
         selectedItemColor: AppColors.primary,
@@ -57,7 +55,6 @@ abstract class AppTheme {
         unselectedLabelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
       ),
 
-      // Cards — sombra suave con el color champagne
       cardTheme: CardThemeData(
         color: AppColors.card,
         elevation: 4,
@@ -69,7 +66,6 @@ abstract class AppTheme {
         margin: EdgeInsets.zero,
       ),
 
-      // Chips
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.primary.withValues(alpha: 0.12),
@@ -80,7 +76,6 @@ abstract class AppTheme {
         checkmarkColor: AppColors.primary,
       ),
 
-      // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
@@ -108,7 +103,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -120,7 +114,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // Outlined Button
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -131,7 +124,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // Text Button
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -139,14 +131,12 @@ abstract class AppTheme {
         ),
       ),
 
-      // Divider
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
 
-      // ListTile
       listTileTheme: const ListTileThemeData(
         tileColor: Colors.transparent,
         iconColor: AppColors.textSecondary,
@@ -161,7 +151,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // FloatingActionButton
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
@@ -169,7 +158,6 @@ abstract class AppTheme {
         shape: CircleBorder(),
       ),
 
-      // SnackBar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.textPrimary,
         contentTextStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
@@ -177,7 +165,6 @@ abstract class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
-      // BottomSheet
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.card,
         surfaceTintColor: Colors.transparent,
@@ -186,7 +173,6 @@ abstract class AppTheme {
         ),
       ),
 
-      // Dialog
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.card,
         surfaceTintColor: Colors.transparent,
@@ -195,7 +181,6 @@ abstract class AppTheme {
         contentTextStyle: AppTextStyles.bodyMedium,
       ),
 
-      // Text
       textTheme: TextTheme(
         displayLarge:   AppTextStyles.displayLarge,
         displayMedium:  AppTextStyles.displayMedium,

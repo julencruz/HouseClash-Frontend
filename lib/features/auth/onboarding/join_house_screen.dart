@@ -155,7 +155,6 @@ class _JoinHouseScreenState extends ConsumerState<JoinHouseScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Info cards
               const _InfoCard(
                 icon: Icons.star_rounded,
                 iconColor: AppColors.gold,

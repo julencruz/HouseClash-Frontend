@@ -166,13 +166,8 @@ class _CreateTaskSheetState extends ConsumerState<CreateTaskSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final userSession = ref.watch(authControllerProvider).valueOrNull;
     final houseSession = ref.watch(houseStorageProvider).valueOrNull;
     final categoriesAsync = ref.watch(categoryControllerProvider);
-
-    final isCaptain = userSession != null &&
-        houseSession != null &&
-        houseSession.isCaptain(userSession.id);
 
     return Container(
       decoration: const BoxDecoration(
@@ -262,9 +257,8 @@ class _CreateTaskSheetState extends ConsumerState<CreateTaskSheet> {
                               : AppTextStyles.labelLarge,
                         ),
                         const Spacer(),
-                        if (isCaptain)
-                          TextButton.icon(
-                            onPressed: () => _showCreateCategoryDialog(context, houseSession.houseId),
+                        TextButton.icon(
+                            onPressed: houseSession == null ? null : () => _showCreateCategoryDialog(context, houseSession.houseId),
                             icon: const Icon(Icons.add, size: 16),
                             label: const Text('Crear categoría'),
                             style: TextButton.styleFrom(foregroundColor: AppColors.primary, textStyle: AppTextStyles.labelSmall),
@@ -526,6 +520,8 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(categoryControllerProvider);
+    final isLocked = widget.task.status == TaskStatus.assigned ||
+        widget.task.status == TaskStatus.pendingReview;
 
     return Container(
       decoration: const BoxDecoration(
@@ -554,7 +550,6 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
             ),
             const SizedBox(height: 24),
 
-            // Título
             TextField(
               controller: _titleController,
               textCapitalization: TextCapitalization.sentences,
@@ -567,7 +562,6 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
             ),
             const SizedBox(height: 16),
 
-            // Descripción
             TextField(
               controller: _descController,
               textCapitalization: TextCapitalization.sentences,
@@ -581,7 +575,6 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
             ),
             const SizedBox(height: 28),
 
-            // Categoría
             categoriesAsync.when(
               data: (categories) {
                 if (categories.isEmpty) return const SizedBox.shrink();
@@ -612,27 +605,38 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
               error: (_, __) => const SizedBox.shrink(),
             ),
 
-            // Esfuerzo
-            Text('Nivel de esfuerzo', style: AppTextStyles.labelLarge),
+            Text('Nivel de esfuerzo', style: AppTextStyles.labelLarge.copyWith(
+              color: isLocked ? AppColors.textHint : null,
+            )),
+            if (isLocked) ...[
+              const SizedBox(height: 6),
+              Text('No se puede modificar mientras la tarea está asignada o en revisión.',
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint)),
+            ],
             const SizedBox(height: 12),
-            SegmentedButton<Effort>(
-              style: SegmentedButton.styleFrom(
-                backgroundColor: AppColors.surface,
-                selectedBackgroundColor: AppColors.accent,
-                side: const BorderSide(color: AppColors.border),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            Opacity(
+              opacity: isLocked ? 0.4 : 1.0,
+              child: IgnorePointer(
+                ignoring: isLocked,
+                child: SegmentedButton<Effort>(
+                  style: SegmentedButton.styleFrom(
+                    backgroundColor: AppColors.surface,
+                    selectedBackgroundColor: AppColors.accent,
+                    side: const BorderSide(color: AppColors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  segments: [
+                    ButtonSegment(value: Effort.low,    label: Text('Bajo',  style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.low    ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.low    ? Colors.white : AppColors.textPrimary)),
+                    ButtonSegment(value: Effort.medium, label: Text('Medio', style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.medium ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.medium ? Colors.white : AppColors.textPrimary)),
+                    ButtonSegment(value: Effort.high,   label: Text('Alto',  style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.high   ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.high   ? Colors.white : AppColors.textPrimary)),
+                  ],
+                  selected: {_effort},
+                  onSelectionChanged: (s) => setState(() => _effort = s.first),
+                ),
               ),
-              segments: [
-                ButtonSegment(value: Effort.low,    label: Text('Bajo',  style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.low    ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.low    ? Colors.white : AppColors.textPrimary)),
-                ButtonSegment(value: Effort.medium, label: Text('Medio', style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.medium ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.medium ? Colors.white : AppColors.textPrimary)),
-                ButtonSegment(value: Effort.high,   label: Text('Alto',  style: AppTextStyles.labelSmall.copyWith(color: _effort == Effort.high   ? Colors.white : AppColors.textPrimary)), icon: Icon(Icons.bolt, size: 16, color: _effort == Effort.high   ? Colors.white : AppColors.textPrimary)),
-              ],
-              selected: {_effort},
-              onSelectionChanged: (s) => setState(() => _effort = s.first),
             ),
             const SizedBox(height: 28),
 
-            // Recurrencia
             Text('Recurrencia', style: AppTextStyles.labelLarge),
             const SizedBox(height: 8),
             DropdownButtonFormField<String?>(
@@ -651,41 +655,53 @@ class _EditTaskSheetState extends ConsumerState<EditTaskSheet> {
             ),
             const SizedBox(height: 28),
 
-            // Fecha límite
-            Text('Fecha límite', style: AppTextStyles.labelLarge),
+            Text('Fecha límite', style: AppTextStyles.labelLarge.copyWith(
+              color: isLocked ? AppColors.textHint : null,
+            )),
+            if (isLocked) ...[
+              const SizedBox(height: 6),
+              Text('No se puede modificar mientras la tarea está asignada o en revisión.',
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint)),
+            ],
             const SizedBox(height: 12),
-            InkWell(
-              onTap: _pickDeadline,
-              borderRadius: BorderRadius.circular(12),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
+            Opacity(
+              opacity: isLocked ? 0.4 : 1.0,
+              child: IgnorePointer(
+                ignoring: isLocked,
+                child: InkWell(
+                  onTap: _pickDeadline,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _deadline != null ? AppColors.primary : AppColors.border, width: _deadline != null ? 1.5 : 1),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today_rounded, size: 18, color: _deadline != null ? AppColors.primary : AppColors.textHint),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _deadline != null
-                            ? '${_deadline!.day.toString().padLeft(2,'0')}/${_deadline!.month.toString().padLeft(2,'0')}/${_deadline!.year}  —  ${_deadline!.hour.toString().padLeft(2,'0')}:${_deadline!.minute.toString().padLeft(2,'0')}'
-                            : 'Sin fecha límite',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: _deadline != null ? AppColors.textPrimary : AppColors.textHint,
-                          fontWeight: _deadline != null ? FontWeight.w600 : FontWeight.normal,
-                        ),
-                      ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _deadline != null ? AppColors.primary : AppColors.border, width: _deadline != null ? 1.5 : 1),
                     ),
-                    if (_deadline != null)
-                      GestureDetector(
-                        onTap: () => setState(() => _deadline = null),
-                        child: const Icon(Icons.cancel_rounded, size: 20, color: AppColors.textHint),
-                      ),
-                  ],
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today_rounded, size: 18, color: _deadline != null ? AppColors.primary : AppColors.textHint),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _deadline != null
+                                ? '${_deadline!.day.toString().padLeft(2,'0')}/${_deadline!.month.toString().padLeft(2,'0')}/${_deadline!.year}  —  ${_deadline!.hour.toString().padLeft(2,'0')}:${_deadline!.minute.toString().padLeft(2,'0')}'
+                                : 'Sin fecha límite',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: _deadline != null ? AppColors.textPrimary : AppColors.textHint,
+                              fontWeight: _deadline != null ? FontWeight.w600 : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        if (_deadline != null)
+                          GestureDetector(
+                            onTap: () => setState(() => _deadline = null),
+                            child: const Icon(Icons.cancel_rounded, size: 20, color: AppColors.textHint),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

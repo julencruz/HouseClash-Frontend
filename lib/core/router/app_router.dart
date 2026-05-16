@@ -74,13 +74,11 @@ GoRouter appRouter(Ref ref) {
       return null;
     },
     routes: [
-      // Splash
       GoRoute(
         path: AppRoutes.splash,
         pageBuilder: (_, state) => const NoTransitionPage(child: _SplashScreen()),
       ),
 
-      // Auth
       GoRoute(
         path: AppRoutes.welcome,
         pageBuilder: (_, state) => const NoTransitionPage(child: WelcomeScreen()),
@@ -94,7 +92,6 @@ GoRouter appRouter(Ref ref) {
         pageBuilder: (_, state) => const NoTransitionPage(child: RegisterScreen()),
       ),
 
-      // Onboarding casa
       GoRoute(
         path: AppRoutes.joinOrCreateHouse,
         pageBuilder: (_, state) => const NoTransitionPage(child: JoinOrCreateHouseScreen()),
@@ -115,7 +112,6 @@ GoRouter appRouter(Ref ref) {
         },
       ),
 
-      // Shell amb bottom nav
       ShellRoute(
         builder: (_, __, child) => MainShell(child: child),
         routes: [
@@ -154,7 +150,6 @@ GoRouter appRouter(Ref ref) {
   );
 }
 
-// Main menu amb bottom nav
 class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
   final Widget child;
@@ -235,7 +230,6 @@ class MainShell extends StatelessWidget {
   }
 }
 
-// ── Placeholder reutilitzable ────────────────────────────
 class PlaceholderScreen extends ConsumerWidget {
   const PlaceholderScreen({super.key, required this.label});
   final String label;
@@ -274,7 +268,6 @@ class _RouterNotifier extends ChangeNotifier {
   }
 }
 
-// ── Splash screen de carga ───────────────────────────────
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 

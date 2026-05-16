@@ -58,7 +58,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final activityAsync = ref.watch(activityControllerProvider);
     final userSession = ref.watch(authControllerProvider).valueOrNull;
 
-    // Auto-refresca cuando el usuario se une/crea una casa
+
     ref.listen(houseStorageProvider, (previous, next) {
       final hadHouse = previous?.valueOrNull != null;
       final hasHouse = next.valueOrNull != null;
