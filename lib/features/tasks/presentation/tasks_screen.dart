@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/auth/house_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -368,78 +369,113 @@ class _TaskCard extends ConsumerWidget {
   }
 
   Widget _buildCard(BuildContext ctx, WidgetRef ref, bool isMyTask, TaskStatus status) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _borderColor(status)),
-        boxShadow: [
-          BoxShadow(color: AppColors.shadow.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  getCategoryDisplayName(task.category.name),
-                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
-                ),
-              ),
-              Row(
-                children: [
-                  const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${task.kudosValue}',
-                    style: AppTextStyles.h3.copyWith(color: AppColors.accentLight),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(child: Text(task.title, style: AppTextStyles.h2)),
-              if (task.isForced)
+    return GestureDetector(
+      onTap: () => ctx.push('/tasks/${task.id}', extra: task),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _borderColor(status)),
+          boxShadow: [
+            BoxShadow(color: AppColors.shadow.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 2)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.push_pin_rounded, size: 11, color: AppColors.accent),
-                      const SizedBox(width: 3),
-                      Text('Forzada',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.accent,
-                            fontSize: 11,
-                          )),
-                    ],
+                  child: Text(
+                    getCategoryDisplayName(task.category.name),
+                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _StatusBadge(status: status),
-          ..._buildActions(ctx, ref, isMyTask, status),
-        ],
+                Row(
+                  children: [
+                    const Icon(Icons.stars_rounded, color: AppColors.accentLight, size: 18),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${task.kudosValue}',
+                      style: AppTextStyles.h3.copyWith(color: AppColors.accentLight),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: Text(task.title, style: AppTextStyles.h2)),
+                if (task.isForced)
+                  Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.push_pin_rounded, size: 11, color: AppColors.accent),
+                        const SizedBox(width: 3),
+                        Text('Forzada',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.accent,
+                              fontSize: 11,
+                            )),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: _StatusBadge(status: status)),
+                // Botón rápido solo para tareas abiertas
+                if (status == TaskStatus.open)
+                  GestureDetector(
+                    onTap: () {
+                      ref.read(taskControllerProvider.notifier).assignTask(task.id);
+                      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                        content: Text('"${task.title}" asignada!'),
+                        backgroundColor: AppColors.primary,
+                      ));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.person_add_rounded, size: 13, color: AppColors.primary),
+                          const SizedBox(width: 5),
+                          Text('Asígnatela',
+                              style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            ..._buildActions(ctx, ref, isMyTask, status),
+          ],
+        ),
       ),
     );
   }

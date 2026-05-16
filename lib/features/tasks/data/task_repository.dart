@@ -79,6 +79,37 @@ class TaskRepository {
     return TaskModel.fromJson(response.data);
   }
 
+  Future<TaskModel> updateTask(int taskId, {
+    String? title,
+    String? description,
+    bool clearDescription = false,
+    Effort? effort,
+    int? categoryId,
+    String? recurrence,
+    bool clearRecurrence = false,
+    DateTime? deadline,
+    bool clearDeadline = false,
+  }) async {
+    final body = <String, dynamic>{};
+    if (title != null)       body['title']            = title;
+    if (description != null) body['description']      = description;
+    if (clearDescription)    body['clearDescription'] = true;
+    if (effort != null)      body['effort']           = effort.name.toUpperCase();
+    if (categoryId != null)  body['categoryId']       = categoryId;
+    if (recurrence != null)  body['recurrence']       = recurrence;
+    if (clearRecurrence)     body['clearRecurrence']  = true;
+    if (deadline != null)    body['deadline']         = deadline.toIso8601String();
+    if (clearDeadline)       body['clearDeadline']    = true;
+
+    final response = await _dio.patch(
+      '/api/tasks/$taskId',
+      data: body,
+      options: Options(contentType: 'application/json'),
+    );
+    _invalidateTasks();
+    return TaskModel.fromJson(response.data);
+  }
+
   Future<TaskModel> createTask({
     required String title,
     required Effort effort,

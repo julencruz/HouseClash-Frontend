@@ -65,6 +65,32 @@ class TaskController extends _$TaskController {
     });
   }
 
+  Future<void> updateTask(int taskId, {
+    String? title,
+    String? description,
+    bool clearDescription = false,
+    Effort? effort,
+    int? categoryId,
+    String? recurrence,
+    bool clearRecurrence = false,
+    DateTime? deadline,
+    bool clearDeadline = false,
+  }) async {
+    await ref.read(taskRepositoryProvider).updateTask(
+      taskId,
+      title: title,
+      description: description,
+      clearDescription: clearDescription,
+      effort: effort,
+      categoryId: categoryId,
+      recurrence: recurrence,
+      clearRecurrence: clearRecurrence,
+      deadline: deadline,
+      clearDeadline: clearDeadline,
+    );
+    state = await AsyncValue.guard(() => _fetchTasks(forceRefresh: true));
+  }
+
   Future<void> createTask({
     required String title,
     required Effort effort,

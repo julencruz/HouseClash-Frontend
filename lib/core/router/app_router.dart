@@ -17,6 +17,8 @@ import '../../features/activity/presentation/activity_screen.dart';
 import '../../features/cards/presentation/cards_screen.dart';
 import '../../features/house/presentation/house_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
+import '../../features/tasks/presentation/task_detail_screen.dart';
+import '../../features/auth/domain/task_models.dart';
 import '../auth/house_storage.dart';
 import '../auth/token_storage.dart';
 import '../theme/app_colors.dart';
@@ -51,7 +53,7 @@ GoRouter appRouter(Ref ref) {
       final hasHouse = houseAsync.valueOrNull != null;
 
       final isPublic = location == AppRoutes.welcome ||
-          location == AppRoutes.login || 
+          location == AppRoutes.login ||
           location == AppRoutes.register;
 
       final isOnboarding =
@@ -123,9 +125,10 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: ':taskId',
-                builder: (_, state) => PlaceholderScreen(
-                  label: 'Detall tasca ${state.pathParameters['taskId']}',
-                ),
+                pageBuilder: (_, state) {
+                  final task = state.extra as TaskModel;
+                  return MaterialPage(child: TaskDetailScreen(task: task));
+                },
               ),
             ],
           ),
