@@ -230,37 +230,6 @@ class MainShell extends StatelessWidget {
   }
 }
 
-class PlaceholderScreen extends ConsumerWidget {
-  const PlaceholderScreen({super.key, required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(label),
-        leading: context.canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).logout();
-            },
-          )
-        ],
-      ),
-      body: Center(
-        child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
-      ),
-    );
-  }
-}
-
 class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
     ref.listen(tokenStorageProvider, (_, __) => notifyListeners());

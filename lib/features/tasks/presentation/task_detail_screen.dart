@@ -83,8 +83,6 @@ class TaskDetailScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.category_rounded, size: 13, color: AppColors.textSecondary),
-                      const SizedBox(width: 5),
                       Text(
                         getCategoryDisplayName(current.category.name),
                         style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
